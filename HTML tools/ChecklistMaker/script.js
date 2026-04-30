@@ -229,6 +229,8 @@ function exportChecklist() {
     const tableData = [];
     const titleCell = document.getElementById("th1");
     const listTitle = titleCell.textContent;
+    const lastRow = table.rows.length - 1;
+    table.deleteRow(lastRow);
     
     // Pull item text and enum checkboxes for each row
     for (let i = 1; i < table.rows.length; i++) {
@@ -252,4 +254,89 @@ function exportChecklist() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+
+    // Rebuild last row after export
+    const newRow = table.insertRow(-1);
+    let cell1 = newRow.insertCell(0);
+    cell1.classList.add("col1");
+    let newParagraph = document.createElement("p");
+    newParagraph.id = `p${table.rows.length - 1}`;
+    cell1.appendChild(newParagraph);
+    let newInput = document.createElement("input");
+    newInput.type = "text";
+    newInput.name = "itemName";
+    newInput.id = "itemName";
+    newInput.placeholder = `Item${table.rows.length - 1}`;
+    cell1.appendChild(newInput);
+    
+    // Add checkbox to new row
+    let cell2 = newRow.insertCell(1);
+    cell2.classList.add("col2");
+    let checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.classList.add("checkbox");
+    checkbox.id = "checkbox0";
+    cell2.appendChild(checkbox);
+    
+    // Add buttons to new row
+    let addButton = document.createElement("input");
+    addButton.type = "button";
+    addButton.value = "+";
+    addButton.classList.add("addButton");
+    addButton.addEventListener("click", addBox);
+    addButton.id = `btn${table.rows.length - 1}`;
+    cell2.appendChild(addButton);
+    let removeButton = document.createElement("input");
+    removeButton.type = "button";
+    removeButton.value = "-";
+    removeButton.classList.add("removeButton");
+    removeButton.addEventListener("click", removeBox);
+    removeButton.id = `btnRemove${table.rows.length - 1}`;
+    cell2.appendChild(removeButton);
+    buttonReader();
+}
+
+// Imports JSON file and populates table with data
+function importChecklist() {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/json";
+    input.onchange = function(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = JSON.parse(e.target.result);
+            // Set title
+            const table = document.getElementById("checklistTable");
+            const titleCell = document.getElementById("th1");
+            titleCell.textContent = data.title;
+            // Clear existing rows
+            for (let i = table.rows.length - 1; i > 0; i--) {
+                table.deleteRow(i);
+            }
+            // Populate table with imported data
+            for (const item of data.items) {
+
+                // Add new row with item text
+                const row = table.insertRow();
+                const itemCell = row.insertCell(0);
+                const checkboxCell = row.insertCell(1);
+                itemCell.textContent = item.item;
+                itemCell.style.textAlign = "center";
+
+                // Add checkboxes based on checkEnum value
+                for (let i = 0; i < item.checkEnum; i++) {
+                    let checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.classList.add("checkbox");
+                    checkbox.id = `checkbox${i}`;
+                    checkboxCell.appendChild(checkbox);
+                    checkboxCell.style.textAlign = "center";
+                }
+                
+            }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
 }
