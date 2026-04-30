@@ -22,20 +22,22 @@
             <tr>
                 <td id="td1" class="col1"><p id="p1"><input type="text" name="itemName" id="itemName" placeholder="Item 1..."></p></td>
                 <td class="col2">
-                    <input type="checkbox" class="checkbox">
+                    <input type="checkbox" class="checkbox" id="checkbox0">
                     <input type="button" value="&#43" class="addButton" onclick="addBox()" id="btn1">
                     <input type="button" value="&#8722" class="removeButton" onclick="removeBox()" id="btnRemove1">
                 </td>
             </tr>
         </tbody>
     </table>
-    <div id="printBtnContainer">
+    <div id="controlBtnContainer">
+        <input type="button" id="importBtn" value="Import Checklist" onclick="importChecklist()">
+        <input type="button" id="exportBtn" value="Export Checklist" onclick="exportChecklist()">
         <input type="button" id="printBtn" value="Print Checklist" onclick="window.print()">
     </div>
 
     <!-- Template Builder -->
     <div class="templateBuilder">
-        <h4>Template Builder</h4>
+        <h3>Template Builder</h3><br>
         Number of rows (Full page = 20 rows): <br>
         <input type="number" id="numRows" min="1">
         <br><br>

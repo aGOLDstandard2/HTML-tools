@@ -41,9 +41,8 @@ function formControl() {
         if (table.contains(document.getElementById(`itemName`))) {
             table.deleteRow(lastRow);
         }
-        document.querySelectorAll(".checkButton").forEach(button => {
-            button.style.visibility = "hidden";
-        });
+        document.querySelectorAll(".addButton").forEach(button => button.style.visibility = "hidden");
+        document.querySelectorAll(".removeButton").forEach(button => button.style.visibility = "hidden");
     });
 
     // Event listener to rebuild row after printing
@@ -70,12 +69,24 @@ function formControl() {
         let checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.classList.add("checkbox");
+        checkbox.id = "checkbox0";
         cell2.appendChild(checkbox);
 
+        // Add buttons to new row
+        let addButton = document.createElement("input");
+        addButton.type = "button";
+        addButton.value = "+";
+        addButton.classList.add("addButton");
+        cell2.appendChild(addButton);
+        let removeButton = document.createElement("input");
+        removeButton.type = "button";
+        removeButton.value = "-";
+        removeButton.classList.add("removeButton");
+        cell2.appendChild(removeButton);
+
         // Show buttons
-        document.querySelectorAll(".checkButton").forEach(button => {
-            button.style.visibility = "visible";
-        });
+        document.querySelectorAll(".addButton").forEach(button => button.style.visibility = "visible");
+        document.querySelectorAll(".removeButton").forEach(button => button.style.visibility = "visible");
     });
 }
 
@@ -105,6 +116,7 @@ function genListSize() {
             let checkbox = document.createElement("input");
             checkbox.type = "checkbox";
             checkbox.classList.add("checkbox");
+            checkbox.id = `checkbox${j}`;
             cell2.appendChild(checkbox);
         }
     }
@@ -155,6 +167,7 @@ function writer() {
     let checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.classList.add("checkbox");
+    checkbox.id = "checkbox0";
     cell2.appendChild(checkbox);
     
     // Add buttons to new row
@@ -187,6 +200,7 @@ function addBox() {
     let checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.classList.add("checkbox");
+    checkbox.id = `checkbox${cell2.querySelectorAll(".checkbox").length}`;
     cell2.appendChild(checkbox);
     const button = document.getElementById(buttonId);
     cell2.appendChild(button);
@@ -207,4 +221,35 @@ function removeBox() {
         const lastCheckbox = checkboxes[checkboxes.length - 1];
         cell2.removeChild(lastCheckbox);
     }
+}
+
+// Exports table data as JSON file
+function exportChecklist() {
+    const table = document.getElementById("checklistTable");
+    const tableData = [];
+    const titleCell = document.getElementById("th1");
+    const listTitle = titleCell.textContent;
+    
+    // Pull item text and enum checkboxes for each row
+    for (let i = 1; i < table.rows.length; i++) {
+        const row = table.rows[i];
+        const itemCell = row.cells[0];
+        const checkboxCell = row.cells[1];
+        const item = itemCell.textContent;
+        const checkboxes = checkboxCell.querySelectorAll(".checkbox");
+        const checkEnum = checkboxes.length;
+        tableData.push({ item, checkEnum });
+    }
+    
+    // Export tableData as JSON file
+    const jsonData = JSON.stringify({ title: listTitle, items: tableData });
+    const blob = new Blob([jsonData], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${listTitle}_checklist.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }

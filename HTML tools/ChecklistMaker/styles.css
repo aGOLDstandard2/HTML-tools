@@ -1,3 +1,9 @@
+body {
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 table {
     width: 100%;
     border: 3px black solid;
@@ -65,7 +71,7 @@ td.col2 {
     padding: 2px;
 }
 
-#printBtnContainer {
+#controlBtnContainer {
     text-align: right;
     margin-top: 10px;
 }
@@ -88,6 +94,16 @@ td.col2 {
     right: 0;
 }
 
+div.templateBuilder {
+    margin: 20px;
+    margin-top: 40px;
+    padding: 10px;
+    width: 20%;
+    border: 5px black solid;
+    border-radius: 8%;
+    text-align: center;
+}
+
 @media print {
     body * {
         visibility: hidden;
@@ -100,7 +116,7 @@ td.col2 {
         left: 0;
         top: 0;
     }
-    .addButton, .removeButton {
+    .addButton, .removeButton, #controlBtnContainer {
         visibility: hidden;
     }
 }
