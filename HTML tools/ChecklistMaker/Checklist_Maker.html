@@ -20,10 +20,11 @@
         </thead>
         <tbody>
             <tr>
-                <td class="col1"><p id="p1"><input type="text" name="itemName" id="itemName" placeholder="Item 1..."></p></td>
+                <td id="td1" class="col1"><p id="p1"><input type="text" name="itemName" id="itemName" placeholder="Item 1..."></p></td>
                 <td class="col2">
-                    <input type="button" value="&#43" class="checkButton" onclick="addBox()" id="btn1">
                     <input type="checkbox" class="checkbox">
+                    <input type="button" value="&#43" class="addButton" onclick="addBox()" id="btn1">
+                    <input type="button" value="&#8722" class="removeButton" onclick="removeBox()" id="btnRemove1">
                 </td>
             </tr>
         </tbody>
@@ -38,8 +39,8 @@
         Number of rows (Full page = 20 rows): <br>
         <input type="number" id="numRows" min="1">
         <br><br>
-        Checkboxes per row (you can add more later): <br>
-        <input type="number" id="checkboxesPerRow" min="1" max="5">
+        Checkboxes per row (you can add more later; up to 15 per row.): <br>
+        <input type="number" id="checkboxesPerRow" min="1" max="15">
         <br><br>
         Hit enter to generate checklist!
     </div>

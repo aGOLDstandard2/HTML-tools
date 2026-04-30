@@ -8,22 +8,25 @@ function formControl() {
     const nada = 0 || "0" || null || undefined;
     document.addEventListener("keydown", function(event) {
         if (event.key === "Enter") {
-            event.preventDefault();
 
             // Checklist forms
             if (document.activeElement.id === "checkTitle" && document.activeElement.value !== "" || null) {
+                event.preventDefault();
                 titleWriter();
             }
             if (document.activeElement.id === "itemName" && document.activeElement.value !== "" || null) {
+                event.preventDefault();
                 writer();
             }
 
             // Template Builder forms
             if (document.activeElement.id === "numRows") {
+                event.preventDefault();
                 numChecksInput.focus();
             }
             if (document.activeElement.id === "checkboxesPerRow") {
                 if (numRowsInput.value !== nada && numChecksInput.value !== nada) {
+                    event.preventDefault();
                     genListSize();
                 }
             }
@@ -38,6 +41,41 @@ function formControl() {
         if (table.contains(document.getElementById(`itemName`))) {
             table.deleteRow(lastRow);
         }
+        document.querySelectorAll(".checkButton").forEach(button => {
+            button.style.visibility = "hidden";
+        });
+    });
+
+    // Event listener to rebuild row after printing
+    window.addEventListener("afterprint", function() {
+        const table = document.getElementById("checklistTable");
+        const newRow = table.insertRow(-1);
+        
+        // Add input field to new row
+        let cell1 = newRow.insertCell(0);
+        cell1.classList.add("col1");
+        let newParagraph = document.createElement("p");
+        newParagraph.id = `p${table.rows.length - 1}`;
+        cell1.appendChild(newParagraph);
+        let newInput = document.createElement("input");
+        newInput.type = "text";
+        newInput.name = "itemName";
+        newInput.id = "itemName";
+        newInput.placeholder = `Item${table.rows.length - 1}`;
+        cell1.appendChild(newInput);
+        
+        // Add checkbox to new row
+        let cell2 = newRow.insertCell(1);
+        cell2.classList.add("col2");
+        let checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.classList.add("checkbox");
+        cell2.appendChild(checkbox);
+
+        // Show buttons
+        document.querySelectorAll(".checkButton").forEach(button => {
+            button.style.visibility = "visible";
+        });
     });
 }
 
@@ -70,6 +108,11 @@ function genListSize() {
             cell2.appendChild(checkbox);
         }
     }
+    // need to increase row height to 50px
+        const rows = table.querySelectorAll("tr");
+        rows.forEach(row => {
+            row.style.height = "50px";
+        });
 }
 
 function titleWriter() {
@@ -104,24 +147,32 @@ function writer() {
     newInput.id = "itemName";
     newInput.placeholder = `Item${table.rows.length - 1}`;
     cell1.appendChild(newInput);
-    
-    // Add button to new row
-    let cell2 = newRow.insertCell(1);
-    cell2.classList.add("col2");
-    let button = document.createElement("input");
-    button.type = "button";
-    button.value = "+";
-    button.classList.add("button");
-    button.addEventListener("click", addBox);
-    button.id = `btn${table.rows.length - 1}`;
-    cell2.appendChild(button);
-    buttonReader();
+    //document.getElementById("td").style.height = "40px";
 
     // Add checkbox to new row
+    let cell2 = newRow.insertCell(1);
+    cell2.classList.add("col2");
     let checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.classList.add("checkbox");
     cell2.appendChild(checkbox);
+    
+    // Add buttons to new row
+    let addButton = document.createElement("input");
+    addButton.type = "button";
+    addButton.value = "+";
+    addButton.classList.add("addButton");
+    addButton.addEventListener("click", addBox);
+    addButton.id = `btn${table.rows.length - 1}`;
+    cell2.appendChild(addButton);
+    let removeButton = document.createElement("input");
+    removeButton.type = "button";
+    removeButton.value = "-";
+    removeButton.classList.add("removeButton");
+    removeButton.addEventListener("click", removeBox);
+    removeButton.id = `btnRemove${table.rows.length - 1}`;
+    cell2.appendChild(removeButton);
+    buttonReader();
 
     // Focus new input field
     newInput.focus();
@@ -137,4 +188,23 @@ function addBox() {
     checkbox.type = "checkbox";
     checkbox.classList.add("checkbox");
     cell2.appendChild(checkbox);
+    const button = document.getElementById(buttonId);
+    cell2.appendChild(button);
+    // need to identify new remove button and move it to end of cell2
+        const removeButtonId = `btnRemove${rowIndex}`;
+        const removeButton = document.getElementById(removeButtonId);
+        cell2.appendChild(removeButton);
+}
+
+function removeBox() {
+    const table = document.getElementById("checklistTable");
+    const buttonId = event.target.id;
+    const rowIndex = parseInt(buttonId.replace("btnRemove", ""));
+    const row = table.rows[rowIndex];
+    const cell2 = row.cells[1];
+    const checkboxes = cell2.querySelectorAll(".checkbox");
+    if (checkboxes.length > 0) {
+        const lastCheckbox = checkboxes[checkboxes.length - 1];
+        cell2.removeChild(lastCheckbox);
+    }
 }
