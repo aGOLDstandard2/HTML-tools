@@ -146,7 +146,6 @@ function writer() {
         titleInput.remove();
         titleCell.textContent = title;
         document.getElementById("itemName").focus();
-        return;
     
     // Item input handling
     } else if (event.target.id === "itemName") {
