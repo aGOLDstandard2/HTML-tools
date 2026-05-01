@@ -76,6 +76,14 @@ td.col2 {
     margin-top: 10px;
 }
 
+.editButton {
+    position: absolute;
+    right: 0;
+    top: 2px;
+    margin: 2px;
+    padding: 2px;
+}
+
 .addButton, .removeButton {
     visibility: visible;
     text-align: right;

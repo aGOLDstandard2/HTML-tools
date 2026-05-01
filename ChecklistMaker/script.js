@@ -16,6 +16,15 @@ function rowBuilder() {
     newInput.placeholder = `Item${table.rows.length - 1}`;
     cell1.appendChild(newInput);
 
+    // Build edit button
+    let editButton = document.createElement("input");
+    editButton.type = "button";
+    editButton.value = "Edit";
+    editButton.classList.add("editButton");
+    editButton.id = `btnEdit${table.rows.length - 1}`;  // append this section to for simple list maker later
+    editButton.addEventListener("click", editItem);
+    cell1.appendChild(editButton);
+
     // Build checkbox cell with single checkbox
     let cell2 = newRow.insertCell(1);
     cell2.classList.add("col2");
@@ -173,11 +182,51 @@ function writer() {
         const itemInput = document.getElementById("itemName");
         const item = itemInput.value;
         const itemCell = document.getElementById(`p${table.rows.length - 1}`);
+        const editButton = document.getElementById(`btnEdit${table.rows.length - 1}`);
         itemInput.remove();
         itemCell.textContent = item;
+        itemCell.appendChild(editButton);
         rowBuilder();
         document.getElementById("itemName").focus();
     }
+}
+
+// Replaces item input field and focuses it when "Edit" button is clicked
+function editItem() {
+    const table = document.getElementById("checklistTable");
+    const lastRow = table.rows.length - 1;
+    const buttonId = event.target.id;
+    const rowIndex = parseInt(buttonId.replace("btnEdit", ""));
+    const row = table.rows[rowIndex];
+    const cell1 = row.cells[0];
+    let itemText = cell1.textContent;
+    cell1.textContent = "";
+    let editInput = document.createElement("input");
+    editInput.type = "text";
+    editInput.name = "editItem";
+    editInput.id = "editItem";
+    editInput.value = itemText;
+    cell1.appendChild(editInput);
+    editInput.focus();
+
+    // Adds event listener for Enter key on edit input field
+    editInput.addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            const newItem = editInput.value;
+            cell1.textContent = newItem;
+            const editButton = document.createElement("input");
+            editButton.type = "button";
+            editButton.value = "Edit";
+            editButton.classList.add("editButton");
+            editButton.id = `btnEdit${rowIndex}`;
+            editButton.addEventListener("click", editItem);
+            cell1.appendChild(editButton);
+            table.deleteRow(lastRow);
+            rowBuilder();
+            document.getElementById("itemName").focus();
+        }
+    });
 }
 
 // Adds checkbox to row of clicked "+" button

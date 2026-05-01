@@ -20,11 +20,16 @@
         </thead>
         <tbody>
             <tr>
-                <td id="td1" class="col1"><p id="p1"><input type="text" name="itemName" id="itemName" placeholder="Item 1..."></p></td>
+                <td id="td1" class="col1">
+                    <p id="p1">
+                        <input type="text" name="itemName" id="itemName" placeholder="Item 1...">
+                        <input type="button" class="editButton" value="Edit" id="btnEdit1" onclick="editItem()">
+                    </p>
+                </td>
                 <td class="col2">
                     <input type="checkbox" class="checkbox" id="checkbox0">
-                    <input type="button" value="&#43" class="addButton" onclick="addBox()" id="btnAdd1">
-                    <input type="button" value="&#8722" class="removeButton" onclick="removeBox()" id="btnRemove1">
+                    <input type="button" value="&#43" class="addButton" id="btnAdd1" onclick="addBox()">
+                    <input type="button" value="&#8722" class="removeButton" id="btnRemove1" onclick="removeBox()">
                 </td>
             </tr>
         </tbody>
