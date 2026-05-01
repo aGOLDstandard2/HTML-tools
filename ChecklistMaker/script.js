@@ -268,7 +268,7 @@ function importChecklist() {
                     checkboxCell.appendChild(checkbox);
                     checkboxCell.style.textAlign = "center";
                 }
-                
+                rowBuilder();   // Add blank row back to table after import
             }
         };
         reader.readAsText(file);
