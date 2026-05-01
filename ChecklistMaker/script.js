@@ -346,6 +346,24 @@ function importChecklist() {
                     checkboxCell.appendChild(checkbox);
                     checkboxCell.style.textAlign = "center";
                 }
+
+                // Add "+" button to checkbox cell
+                let addButton = document.createElement("input");
+                addButton.type = "button";
+                addButton.value = "+";
+                addButton.classList.add("addButton");
+                addButton.addEventListener("click", addBox);
+                addButton.id = `btnAdd${table.rows.length - 1}`;
+                checkboxCell.appendChild(addButton);
+
+                // Add "-" button to checkbox cell
+                let removeButton = document.createElement("input");
+                removeButton.type = "button";
+                removeButton.value = "-";
+                removeButton.classList.add("removeButton");
+                removeButton.addEventListener("click", removeBox);
+                removeButton.id = `btnRemove${table.rows.length - 1}`;
+                checkboxCell.appendChild(removeButton);
             }
             rowBuilder();   // Add blank row back to table after import
         };
