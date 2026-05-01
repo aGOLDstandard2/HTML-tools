@@ -21,7 +21,7 @@ function rowBuilder() {
     editButton.type = "button";
     editButton.value = "Edit";
     editButton.classList.add("editButton");
-    editButton.id = `btnEdit${table.rows.length - 1}`;  // append this section to for simple list maker later
+    editButton.id = `btnEdit${table.rows.length - 1}`;
     editButton.addEventListener("click", editItem);
     cell1.appendChild(editButton);
 

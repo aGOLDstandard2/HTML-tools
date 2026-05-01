@@ -26,7 +26,7 @@ th {
     font: 24px Arial, sans-serif;
 }
 
-#itemName {
+#itemName, #editItem {
     width: 60%;
     height: 15px;
     margin: 3px;
@@ -62,6 +62,13 @@ p {
     margin-top: 10px;
 }
 
+.editButton {
+    position: absolute;
+    right: 0;
+    top: 2px;
+    margin: 2px;
+    padding: 2px;
+}
 
 div.templateBuilder {
     margin: 20px;
