@@ -139,14 +139,14 @@ function genListSize() {
 function writer() {
     
     // Title input handling
-    if (event.target.id === "checkTitle") {
+    if (document.activeElement.id === "checkTitle") {
         const titleInput = document.getElementById("checkTitle");
         const title = titleInput.value;
-        console.log(titleInput.value);
         const titleCell = document.getElementById("th1");
         titleInput.remove();
         titleCell.textContent = title;
         document.getElementById("itemName").focus();
+        return;
     
     // Item input handling
     } else if (event.target.id === "itemName") {
