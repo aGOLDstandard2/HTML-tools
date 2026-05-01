@@ -31,7 +31,7 @@ function rowBuilder() {
     addButton.value = "+";
     addButton.classList.add("addButton");
     addButton.addEventListener("click", addBox);
-    addButton.id = `btn${table.rows.length - 1}`;
+    addButton.id = `btnAdd${table.rows.length - 1}`;
     cell2.appendChild(addButton);
 
     // Add "-" button to checkbox cell
@@ -142,6 +142,7 @@ function writer() {
     if (event.target.id === "checkTitle") {
         const titleInput = document.getElementById("checkTitle");
         const title = titleInput.value;
+        console.log(titleInput.value);
         const titleCell = document.getElementById("th1");
         titleInput.remove();
         titleCell.textContent = title;
