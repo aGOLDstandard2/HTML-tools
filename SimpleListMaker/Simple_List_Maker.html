@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist Maker</title>
+    <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js"></script>
+</head>
+<body onload="formControl()">
+
+    <!-- List Table -->
+    <table id="listTable">
+        <thead>
+            <tr>
+                <th><h2 id="th1"><input type="text" placeholder="List Title" id="listTitle"></h2></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td id="td1" class="col1"><p id="p1"><input type="text" name="itemName" id="itemName" placeholder="Item 1..."></p></td>
+            </tr>
+        </tbody>
+    </table>
+    <div id="controlBtnContainer">
+        <input type="button" id="importBtn" value="Import List" onclick="importList()">
+        <input type="button" id="exportBtn" value="Export List" onclick="exportList()">
+        <input type="button" id="printBtn" value="Print List" onclick="window.print()">
+    </div>
+
+    <!-- Template Builder -->
+    <div class="templateBuilder">
+        <h3>Template Builder</h3><br>
+        Number of rows (Full page = 20 rows): <br>
+        <input type="number" id="numRows" min="1">
+        <br><br>
+        Hit enter to generate checklist!
+    </div>
+</body>
+</html>
