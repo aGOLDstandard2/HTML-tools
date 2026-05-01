@@ -63,9 +63,29 @@ function formControl() {
 
 // Clears all table rows except header
 function clearTable() {
-    const table = document.getElementById("listTable");
-    for (let i = table.rows.length - 1; i > 0; i--) {
-        table.deleteRow(i);
+
+    // Resets form if clear button was clicked
+    if (document.activeElement.id === "clearBtn") {
+        const titleCell = document.getElementById("th1");
+        titleCell.textContent = "";
+        const titleField = document.createElement("input");
+        titleField.type = "text";
+        titleField.id = "listTitle";
+        titleField.placeholder = "List Title";
+        titleCell.appendChild(titleField);
+        const table = document.getElementById("listTable");
+        for (let i = table.rows.length - 1; i > 0; i--) {
+            table.deleteRow(i);
+        }
+        rowBuilder();
+        document.getElementById("listTitle").focus();
+    } else {
+
+        // For genListSize()
+        const table = document.getElementById("listTable");
+        for (let i = table.rows.length - 1; i > 0; i--) {
+            table.deleteRow(i);
+        }
     }
 }
 
