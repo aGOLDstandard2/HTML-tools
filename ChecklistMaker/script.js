@@ -327,6 +327,15 @@ function importChecklist() {
                 itemCell.textContent = item.item;
                 itemCell.style.textAlign = "center";
 
+                // Add edit button
+                let editButton = document.createElement("input");
+                editButton.type = "button";
+                editButton.value = "Edit";
+                editButton.classList.add("editButton");
+                editButton.id = `btnEdit${table.rows.length - 1}`;
+                editButton.addEventListener("click", editItem);
+                itemCell.appendChild(editButton);
+
                 // Add checkboxes
                 const checkboxCell = row.insertCell(1);
                 for (let i = 0; i < item.checkEnum; i++) {

@@ -250,6 +250,15 @@ function importList() {
                 const itemCell = row.insertCell(0);
                 itemCell.textContent = item.item;
                 itemCell.style.textAlign = "center";
+
+                // Add edit button
+                let editButton = document.createElement("input");
+                editButton.type = "button";
+                editButton.value = "Edit";
+                editButton.classList.add("editButton");
+                editButton.id = `btnEdit${table.rows.length - 1}`;
+                editButton.addEventListener("click", editItem);
+                itemCell.appendChild(editButton);
             }
             rowBuilder();   // Add blank row back to table after import
         };
