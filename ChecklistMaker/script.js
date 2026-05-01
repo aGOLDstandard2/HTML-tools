@@ -182,7 +182,7 @@ function removeBox() {
     const row = table.rows[rowIndex];
     const cell2 = row.cells[1];
     const checkboxes = cell2.querySelectorAll(".checkbox");
-    if (checkboxes.length > 0) {
+    if (checkboxes.length > 1) {
         const lastCheckbox = checkboxes[checkboxes.length - 1];
         cell2.removeChild(lastCheckbox);
     }
