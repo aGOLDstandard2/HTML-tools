@@ -214,7 +214,7 @@ function exportChecklist() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${listTitle}_checklist.json`;
+    a.download = `checklist-${listTitle}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
