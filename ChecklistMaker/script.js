@@ -74,6 +74,7 @@ function formControl() {
         rowBuilder();
         document.querySelectorAll(".addButton").forEach(button => button.style.visibility = "visible");
         document.querySelectorAll(".removeButton").forEach(button => button.style.visibility = "visible");
+        document.querySelectorAll(".editButton").forEach(button => button.style.visibility = "visible");
     });
 
     // Add event listener for Enter key on all input fields
