@@ -55,6 +55,15 @@ function rowBuilder() {
     editButton.id = `btnEdit${table.rows.length - 1}`;
     editButton.addEventListener("click", editItem);
     cell1.appendChild(editButton);
+
+    // Build delete button
+    let deleteButton = document.createElement("input");
+    deleteButton.type = "button";
+    deleteButton.value = "Delete";
+    deleteButton.classList.add("deleteButton");
+    deleteButton.id = `btnDelete${table.rows.length - 1}`;
+    deleteButton.addEventListener("click", deleteItem);
+    cell1.appendChild(deleteButton);
 }
 
 // Changes the way the Enter key behaves, and cleans up prints
@@ -110,33 +119,55 @@ function editItem() {
     const row = table.rows[rowIndex];
     const cell1 = row.cells[0];
     let itemText = cell1.textContent;
-    cell1.textContent = "";
-    let editInput = document.createElement("input");
-    editInput.type = "text";
-    editInput.name = "editItem";
-    editInput.id = "editItem";
-    editInput.value = itemText;
-    cell1.appendChild(editInput);
-    editInput.focus();
+    if (rowIndex !== lastRow) {
+        cell1.textContent = "";
+        let editInput = document.createElement("input");
+        editInput.type = "text";
+        editInput.name = "editItem";
+        editInput.id = "editItem";
+        editInput.value = itemText;
+        cell1.appendChild(editInput);
+        editInput.focus();
 
-    // Adds event listener for Enter key on edit input field
-    editInput.addEventListener("keydown", function(event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            const newItem = editInput.value;
-            cell1.textContent = newItem;
-            const editButton = document.createElement("input");
-            editButton.type = "button";
-            editButton.value = "Edit";
-            editButton.classList.add("editButton");
-            editButton.id = `btnEdit${rowIndex}`;
-            editButton.addEventListener("click", editItem);
-            cell1.appendChild(editButton);
-            table.deleteRow(lastRow);
-            rowBuilder();
-            document.getElementById("itemName").focus();
-        }
-    });
+        // Adds event listener for Enter key on edit input field
+        editInput.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                const newItem = editInput.value;
+                cell1.textContent = newItem;
+                const editButton = document.createElement("input");
+                editButton.type = "button";
+                editButton.value = "Edit";
+                editButton.classList.add("editButton");
+                editButton.id = `btnEdit${rowIndex}`;
+                editButton.addEventListener("click", editItem);
+                cell1.appendChild(editButton);
+                const deleteButton = document.createElement("input");
+                deleteButton.type = "button";
+                deleteButton.value = "Delete";
+                deleteButton.classList.add("deleteButton");
+                deleteButton.id = `btnDelete${rowIndex}`;
+                deleteButton.addEventListener("click", deleteItem);
+                cell1.appendChild(deleteButton);
+                table.deleteRow(lastRow);
+                rowBuilder();
+                document.getElementById("itemName").focus();
+            }
+        });
+    } else {
+        document.getElementById("itemName").focus();
+    }
+}
+
+// Deletes row of clicked "Delete" button
+function deleteItem() {
+    const table = document.getElementById("listTable");
+    const lastRow = table.rows.length - 1;
+    const buttonId = event.target.id;
+    const rowIndex = parseInt(buttonId.replace("btnDelete", ""));
+    if (rowIndex !== lastRow) {
+        table.deleteRow(rowIndex);
+    }
 }
 
 // Clears all table rows except header
@@ -207,9 +238,11 @@ function writer() {
         const item = itemInput.value;
         const itemCell = document.getElementById(`p${table.rows.length - 1}`);
         const editButton = document.getElementById(`btnEdit${table.rows.length - 1}`);
+        const deleteButton = document.getElementById(`btnDelete${table.rows.length - 1}`);
         itemInput.remove();
         itemCell.textContent = item;
         itemCell.appendChild(editButton);
+        itemCell.appendChild(deleteButton);
         rowBuilder();
         document.getElementById("itemName").focus();
     }

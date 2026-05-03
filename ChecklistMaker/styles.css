@@ -88,7 +88,15 @@ td.col2 {
 
 .editButton {
     position: absolute;
-    right: 0;
+    right: 3.5%;
+    top: 2px;
+    margin: 2px;
+    padding: 2px;
+}
+
+.deleteButton {
+    position: absolute;
+    right: 0%;
     top: 2px;
     margin: 2px;
     padding: 2px;

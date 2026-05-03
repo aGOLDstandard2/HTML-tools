@@ -56,6 +56,15 @@ function rowBuilder() {
     editButton.addEventListener("click", editItem);
     cell1.appendChild(editButton);
 
+    // Build delete button
+    let deleteButton = document.createElement("input");
+    deleteButton.type = "button";
+    deleteButton.value = "Delete";
+    deleteButton.classList.add("deleteButton");
+    deleteButton.id = `btnDelete${table.rows.length - 1}`;
+    deleteButton.addEventListener("click", deleteItem);
+    cell1.appendChild(deleteButton);
+
     // Build checkbox cell with single checkbox
     let cell2 = newRow.insertCell(1);
     cell2.classList.add("col2");
@@ -131,6 +140,94 @@ function formControl() {
             }
         }
     });
+}
+
+// Replaces item input field and focuses it when "Edit" button is clicked
+function editItem() {
+    const table = document.getElementById("checklistTable");
+    const lastRow = table.rows.length - 1;
+    const buttonId = event.target.id;
+    const rowIndex = parseInt(buttonId.replace("btnEdit", ""));
+    const row = table.rows[rowIndex];
+    const cell1 = row.cells[0];
+    let itemText = cell1.textContent;
+    if (rowIndex !== lastRow) {
+        cell1.textContent = "";
+        let editInput = document.createElement("input");
+        editInput.type = "text";
+        editInput.name = "editItem";
+        editInput.id = "editItem";
+        editInput.value = itemText;
+        cell1.appendChild(editInput);
+        editInput.focus();
+
+        // Adds event listener for Enter key on edit input field
+        editInput.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                const newItem = editInput.value;
+                cell1.textContent = newItem;
+                const editButton = document.createElement("input");
+                editButton.type = "button";
+                editButton.value = "Edit";
+                editButton.classList.add("editButton");
+                editButton.id = `btnEdit${rowIndex}`;
+                editButton.addEventListener("click", editItem);
+                cell1.appendChild(editButton);
+                const deleteButton = document.createElement("input");
+                deleteButton.type = "button";
+                deleteButton.value = "Delete";
+                deleteButton.classList.add("deleteButton");
+                deleteButton.id = `btnDelete${rowIndex}`;
+                deleteButton.addEventListener("click", deleteItem);
+                cell1.appendChild(deleteButton);
+                table.deleteRow(lastRow);
+                rowBuilder();
+                document.getElementById("itemName").focus();
+            }
+        });
+    } else {
+        document.getElementById("itemName").focus();
+    }
+}
+
+// Deletes row of clicked "Delete" button
+function deleteItem() {
+    const table = document.getElementById("checklistTable");
+    const buttonId = event.target.id;
+    const rowIndex = parseInt(buttonId.replace("btnDelete", ""));
+    const lastRow = table.rows.length - 1;
+    if (rowIndex !== lastRow) {
+        table.deleteRow(rowIndex);
+    }
+}
+
+// Adds checkbox to row of clicked "+" button
+function addBox() {
+    const table = document.getElementById("checklistTable");
+    const buttonId = event.target.id;
+    const rowIndex = parseInt(buttonId.replace("btnAdd", ""));
+    const row = table.rows[rowIndex];
+    const cell2 = row.cells[1];
+    let checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.classList.add("checkbox");
+    checkbox.id = `checkbox${cell2.querySelectorAll(".checkbox").length}`;
+    cell2.appendChild(checkbox);
+}
+
+// Removes last checkbox from row of clicked "-" button
+function removeBox() {
+    const table = document.getElementById("checklistTable");
+    const buttonId = event.target.id;
+    const rowIndex = parseInt(buttonId.replace("btnRemove", ""));
+    const row = table.rows[rowIndex];
+    const cell2 = row.cells[1];
+    const checkboxes = cell2.querySelectorAll(".checkbox");
+    if (checkboxes.length > 1) {
+        const lastCheckbox = checkboxes[checkboxes.length - 1];
+        cell2.removeChild(lastCheckbox);
+    }
 }
 
 // Clears all table rows except header
@@ -216,77 +313,13 @@ function writer() {
         const item = itemInput.value;
         const itemCell = document.getElementById(`p${table.rows.length - 1}`);
         const editButton = document.getElementById(`btnEdit${table.rows.length - 1}`);
+        const deleteButton = document.getElementById(`btnDelete${table.rows.length - 1}`);
         itemInput.remove();
         itemCell.textContent = item;
         itemCell.appendChild(editButton);
+        itemCell.appendChild(deleteButton);
         rowBuilder();
         document.getElementById("itemName").focus();
-    }
-}
-
-// Replaces item input field and focuses it when "Edit" button is clicked
-function editItem() {
-    const table = document.getElementById("checklistTable");
-    const lastRow = table.rows.length - 1;
-    const buttonId = event.target.id;
-    const rowIndex = parseInt(buttonId.replace("btnEdit", ""));
-    const row = table.rows[rowIndex];
-    const cell1 = row.cells[0];
-    let itemText = cell1.textContent;
-    cell1.textContent = "";
-    let editInput = document.createElement("input");
-    editInput.type = "text";
-    editInput.name = "editItem";
-    editInput.id = "editItem";
-    editInput.value = itemText;
-    cell1.appendChild(editInput);
-    editInput.focus();
-
-    // Adds event listener for Enter key on edit input field
-    editInput.addEventListener("keydown", function(event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            const newItem = editInput.value;
-            cell1.textContent = newItem;
-            const editButton = document.createElement("input");
-            editButton.type = "button";
-            editButton.value = "Edit";
-            editButton.classList.add("editButton");
-            editButton.id = `btnEdit${rowIndex}`;
-            editButton.addEventListener("click", editItem);
-            cell1.appendChild(editButton);
-            table.deleteRow(lastRow);
-            rowBuilder();
-            document.getElementById("itemName").focus();
-        }
-    });
-}
-
-// Adds checkbox to row of clicked "+" button
-function addBox() {
-    const table = document.getElementById("checklistTable");
-    const buttonId = event.target.id;
-    const rowIndex = parseInt(buttonId.replace("btnAdd", ""));
-    const row = table.rows[rowIndex];
-    const cell2 = row.cells[1];
-    let checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.classList.add("checkbox");
-    checkbox.id = `checkbox${cell2.querySelectorAll(".checkbox").length}`;
-    cell2.appendChild(checkbox);
-}
-
-// Removes last checkbox from row of clicked "-" button
-function removeBox() {
-    const table = document.getElementById("checklistTable");
-    const buttonId = event.target.id;
-    const rowIndex = parseInt(buttonId.replace("btnRemove", ""));
-    const row = table.rows[rowIndex];
-    const cell2 = row.cells[1];
-    const checkboxes = cell2.querySelectorAll(".checkbox");
-    if (checkboxes.length > 1) {
-        const lastCheckbox = checkboxes[checkboxes.length - 1];
-        cell2.removeChild(lastCheckbox);
     }
 }
 
