@@ -72,8 +72,18 @@ td.col2 {
 }
 
 #controlBtnContainer {
-    text-align: right;
-    margin-top: 10px;
+    position: relative;
+    width: 100%;
+    text-align: center;
+    vertical-align: middle;
+    margin: 10px;
+}
+
+#clearBtn {
+    position: absolute;
+    right: 0;
+    margin: 2px;
+    padding: 2px;
 }
 
 .editButton {
@@ -104,7 +114,7 @@ td.col2 {
 
 div.templateBuilder {
     margin: 20px;
-    margin-top: 40px;
+    margin-top: 30px;
     padding: 10px;
     width: 20%;
     border: 5px black solid;
@@ -113,7 +123,7 @@ div.templateBuilder {
 }
 
 @media print {
-    body * {
+    .addButton, .removeButton, #controlBtnContainer, body * {
         visibility: hidden;
     }
     #checklistTable, #checklistTable * {
@@ -123,8 +133,5 @@ div.templateBuilder {
         position: absolute;
         left: 0;
         top: 0;
-    }
-    .addButton, .removeButton, #controlBtnContainer {
-        visibility: hidden;
     }
 }

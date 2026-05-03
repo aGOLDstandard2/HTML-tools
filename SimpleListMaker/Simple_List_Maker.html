@@ -7,6 +7,7 @@
     <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="styles.css">
     <script src="script.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body onload="formControl()">
 
@@ -29,11 +30,12 @@
         </tbody>
     </table>
     <div id="controlBtnContainer">
-        <input type="button" id="importBtn" value="Import List" onclick="importList()">
-        <input type="button" id="exportBtn" value="Export List" onclick="exportList()">
         <input type="button" id="printBtn" value="Print List" onclick="window.print()">
+        <input type="button" id="savePng" value="Save list as PNG" onclick="saveAsPng()">
         <input type="button" id="clearBtn" value="Clear List" onclick="clearTable()">
-    </div>
+    </div><br>
+    <input type="button" id="importBtn" value="Import List" onclick="importList()"><br>
+    <input type="button" id="exportBtn" value="Export List" onclick="exportList()">
 
     <!-- Template Builder -->
     <div class="templateBuilder">
@@ -41,7 +43,7 @@
         Number of rows (Full page = 20 rows): <br>
         <input type="number" id="numRows" min="1">
         <br><br>
-        Hit enter to generate checklist!
+        Hit enter to generate list!
     </div>
 </body>
 </html>

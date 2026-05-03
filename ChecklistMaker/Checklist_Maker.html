@@ -7,6 +7,7 @@
     <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="styles.css">
     <script src="script.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body onload="formControl()">
 
@@ -35,11 +36,12 @@
         </tbody>
     </table>
     <div id="controlBtnContainer">
-        <input type="button" id="importBtn" value="Import Checklist" onclick="importChecklist()">
-        <input type="button" id="exportBtn" value="Export Checklist" onclick="exportChecklist()">
         <input type="button" id="printBtn" value="Print Checklist" onclick="window.print()">
+        <input type="button" id="savePng" value="Save list as PNG" onclick="saveAsPng()">
         <input type="button" id="clearBtn" value="Clear Checklist" onclick="clearTable()">
-    </div>
+    </div><br>
+        <input type="button" id="importBtn" value="Import Checklist" onclick="importChecklist()"><br>
+        <input type="button" id="exportBtn" value="Export Checklist" onclick="exportChecklist()">
 
     <!-- Template Builder -->
     <div class="templateBuilder">
