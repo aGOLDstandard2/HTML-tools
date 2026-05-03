@@ -371,6 +371,9 @@ function importChecklist() {
 
                 // Add checkboxes
                 const checkboxCell = row.insertCell(1);
+                if (!item.checkEnum || item.checkEnum < 1) {
+                    item.checkEnum = 1;
+                }
                 for (let i = 0; i < item.checkEnum; i++) {
                     let checkbox = document.createElement("input");
                     checkbox.type = "checkbox";
