@@ -107,6 +107,7 @@ function formControl() {
         document.querySelectorAll(".addButton").forEach(button => button.style.visibility = "hidden");
         document.querySelectorAll(".removeButton").forEach(button => button.style.visibility = "hidden");
         document.querySelectorAll(".editButton").forEach(button => button.style.visibility = "hidden");
+        document.querySelectorAll(".deleteButton").forEach(button => button.style.visibility = "hidden");
     });
 
     // Adds removed row back to table, and shows buttons
@@ -115,6 +116,7 @@ function formControl() {
         document.querySelectorAll(".addButton").forEach(button => button.style.visibility = "visible");
         document.querySelectorAll(".removeButton").forEach(button => button.style.visibility = "visible");
         document.querySelectorAll(".editButton").forEach(button => button.style.visibility = "visible");
+        document.querySelectorAll(".deleteButton").forEach(button => button.style.visibility = "visible");
     });
 
     // Add event listener for Enter key on all input fields
