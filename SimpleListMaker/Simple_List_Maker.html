@@ -12,13 +12,13 @@
 <body onload="formControl()">
 
     <!-- List Table -->
-    <table id="listTable">
+    <table id="listTable1" class="table">
         <thead>
             <tr>
                 <th><h2 id="th1"><input type="text" placeholder="List Title" id="listTitle"></h2></th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="tBody1">
             <tr>
                 <td id="td1" class="col1">
                     <p id="p1">
@@ -43,6 +43,9 @@
         <h3>Template Builder</h3><br>
         Number of rows (Full page = 20 rows): <br>
         <input type="number" id="numRows" min="1">
+        <br><br>
+        List title: <br>
+        <input type="text" id="templateTitle" placeholder="Enter Title">
         <br><br>
         Hit enter to generate list!
     </div>

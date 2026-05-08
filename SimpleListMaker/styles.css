@@ -4,7 +4,7 @@ body {
     flex-direction: column;
     align-items: center;
 }
-table {
+.table {
     width: 100%;
     border: 3px black solid;
     padding: 0;
@@ -102,12 +102,8 @@ div.templateBuilder {
     #controlBtnContainer, body * {
         visibility: hidden;
     }
-    #listTable, #listTable * {
+
+    .table, .table * {
         visibility: visible;
-    }
-    #listTable {
-        position: absolute;
-        left: 0;
-        top: 0;
     }
 }

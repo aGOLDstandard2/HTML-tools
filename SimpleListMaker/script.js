@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 // Builds new row with input field and buttons
 function rowBuilder() {
-    const table = document.getElementById("listTable");
+    const table = document.getElementById("listTable1");
     const newRow = table.insertRow(-1);
 
     // Build item cell with input field
@@ -70,19 +70,25 @@ function rowBuilder() {
 function formControl() {
     document.getElementById("listTitle").focus(); // Focus first input field on page load
 
-    // Removes last row of table and hides buttons before printing
+    // Cleans up table for printing
     window.addEventListener("beforeprint", function() {
-        const table = document.getElementById("listTable");
+
+        // Remove last row if it contains the item input field
+        const table = document.getElementById("listTable1");
         const lastRow = table.rows.length - 1;
         if (table.contains(document.getElementById(`itemName`))) {
             table.deleteRow(lastRow);
         }
+
+        // Hide buttons
+        pageCheck();
         document.querySelectorAll(".addButton").forEach(button => button.style.visibility = "hidden");
         document.querySelectorAll(".removeButton").forEach(button => button.style.visibility = "hidden");
     });
 
     // Adds removed row back to table, and shows buttons
     window.addEventListener("afterprint", function() {
+        multiPageUndo();
         rowBuilder();
         document.querySelectorAll(".addButton").forEach(button => button.style.visibility = "visible");
         document.querySelectorAll(".removeButton").forEach(button => button.style.visibility = "visible");
@@ -103,16 +109,152 @@ function formControl() {
             }
 
             // Template Builder form
-            if (document.activeElement.id === "numRows") {
+            const numRows = document.getElementById("numRows");
+            const templateTitle = document.getElementById("templateTitle");
+            if (document.activeElement.id === "numRows" && !templateTitle.value) {
+                document.getElementById("templateTitle").focus();
+            }
+            if (document.activeElement.id === "templateTitle" && document.activeElement.value && numRows.value) {
                 genListSize();
             }
         }
     });
 }
 
+// Checks if we need to build a new tables for multi-page prints
+function pageCheck() {
+    const table = document.getElementById("listTable1");
+    const titleCell = document.getElementById("th1");
+    const title = titleCell.textContent
+    const firstRow = table.rows[1];
+    const firstCell = firstRow.cells[0];
+    let pageCounter = 0;
+    let pageLength = 0;
+    let  template = false;
+
+    if (firstCell.textContent === "") {
+        pageLength = 21;
+        template = true;
+    } else if (firstCell.textCell !== "") {
+        pageLength = 26;
+    }
+    pageCounter = Math.ceil((table.rows.length -1) / pageLength);
+
+    if (pageCounter > 0) {
+        multiPageBuild(pageCounter, pageLength, template)
+    }
+}
+
+// Creates new tables for multi-page prints
+function multiPageBuild(pageCounter, pageLength, template) {
+    const mainTable = document.getElementById("listTable1");
+    const titleCell = document.getElementById("th1");
+    const title = titleCell.textContent;
+
+    // Builds array of rows and thier data
+    const allRows = mainTable.rows.length;
+    const rowData = [];
+    for (let i = 1; i < allRows; i++) {
+        const row = mainTable.rows[i];
+        const textCell = row.cells[0];
+        rowData.push(textCell.textContent);
+    }
+
+    clearTable();
+    
+    for (let j = 0; j < pageCounter; j++) {
+        let tableLength = 0;
+        if (rowData.length >= pageLength) {
+            tableLength = pageLength;
+        } else {
+            tableLength = rowData.length;
+        }
+        console.log(tableLength);
+        if (rowData.length === 0) {
+            return;
+        }
+        if (j === 0) {
+            titleCell.textContent = `${title} (${j + 1}/${pageCounter})`;
+        } else {
+
+            // Builds table header
+            let newTable = document.createElement('table');
+            newTable.id = `listTable${j + 1}`;
+            newTable.className = 'table';
+            const tHead = document.createElement('thead');
+            const tHeadRow = document.createElement('tr');
+            const th = document.createElement('th');
+            let h2 = document.createElement('h2');
+            h2.id = `th${j + 1}`;
+            h2.textContent = `${title} (${j + 1}/${pageCounter})`;
+            let newTBody = document.createElement('tbody');
+            newTBody.id = `tBody${j + 1}`;
+            newTable.appendChild(newTBody);
+            th.appendChild(h2);
+            tHeadRow.appendChild(th);
+            tHead.appendChild(tHeadRow);
+            newTable.insertBefore(tHead, newTBody);
+            const controlButtonDiv = document.getElementById(`controlBtnContainer`);
+            document.body.insertBefore(newTable, controlButtonDiv);
+        }
+
+        // Fills out table
+        for (let k = 0; k < tableLength; k++) {
+            const table = document.getElementById(`tBody${j + 1}`);
+            let newRow = table.insertRow(-1);
+            if (template) {
+                newRow.style.height = "40px";
+            }
+            let cell1 = newRow.insertCell(0);
+            cell1.classList.add("col1");
+            let newParagraph = document.createElement("p");
+            newParagraph.id = `p${table.rows.length}_${j +1}`;
+            newParagraph.textContent = rowData.shift();
+            cell1.appendChild(newParagraph);
+        }
+    }
+}
+
+// Tears down multi-page printing layout and returns to default
+function multiPageUndo() {
+    const tables = document.querySelectorAll('table');
+    const tablesEnum = tables.length;
+    const rowData = [];
+    for (let i = 0; i < tablesEnum; i++) {
+
+        // Builds array of rows and thier data
+        const table = document.getElementById(`listTable${i + 1}`);
+        if (table.id !== `listTable1`) {
+            const allRows = table.rows.length;
+            for (let i = 0; i < allRows - 1; i++) {
+                const row = table.rows[i + 1];
+                rowData.push(row.innerText);
+                console.log(rowData[i]);
+            }
+            table.remove();
+        }
+    }
+    
+    // Fills out table
+    const table = document.getElementById(`tBody1`);
+    const titleCell = document.getElementById(`th1`);
+    const title = titleCell.textContent.split(" ", 1);
+    titleCell.innerText = title;
+    for (let j = 0; j < rowData.length; j++) {
+        console.log(`Appending item '${rowData[j]}' ${j + 1}/${rowData.length}`);
+        const newRow = table.insertRow(-1);
+        let cell1 = newRow.insertCell(0);
+        cell1.classList.add("col1");
+        let newParagraph = document.createElement("p");
+        newParagraph.id = `p${table.length}`;
+        newParagraph.textContent = rowData[j];
+        cell1.appendChild(newParagraph);
+    }
+}
+
 // Replaces item input field and focuses it when "Edit" button is clicked
 function editItem() {
-    const table = document.getElementById("listTable");
+    const table = document.getElementById("listTable1");
     const lastRow = table.rows.length - 1;
     const buttonId = event.target.id;
     const rowIndex = parseInt(buttonId.replace("btnEdit", ""));
@@ -161,7 +303,7 @@ function editItem() {
 
 // Deletes row of clicked "Delete" button
 function deleteItem() {
-    const table = document.getElementById("listTable");
+    const table = document.getElementById("listTable1");
     const lastRow = table.rows.length - 1;
     const buttonId = event.target.id;
     const rowIndex = parseInt(buttonId.replace("btnDelete", ""));
@@ -182,7 +324,7 @@ function clearTable() {
         titleField.id = "listTitle";
         titleField.placeholder = "List Title";
         titleCell.appendChild(titleField);
-        const table = document.getElementById("listTable");
+        const table = document.getElementById("listTable1");
         for (let i = table.rows.length - 1; i > 0; i--) {
             table.deleteRow(i);
         }
@@ -191,7 +333,7 @@ function clearTable() {
     } else {
 
         // For genListSize()
-        const table = document.getElementById("listTable");
+        const table = document.getElementById("listTable1");
         for (let i = table.rows.length - 1; i > 0; i--) {
             table.deleteRow(i);
         }
@@ -200,23 +342,25 @@ function clearTable() {
 
 // Generates blank, printable checklist based on Template Builder form values
 function genListSize() {
-    const table = document.getElementById("listTable");
+    const table = document.getElementById("listTable1");
+    const tBody = document.getElementById("tBody1");
     const numRows = document.getElementById("numRows").value;
+    const title = document.getElementById("templateTitle").value;
+    const titleCell = document.getElementById("th1");
     clearTable();
+    titleCell.textContent = title;
 
     // Row generation
     for (let i = 0; i < numRows; i++) {
-        const row = table.insertRow(-1);
-        let cell1 = row.insertCell(0);
+        const tBody = table.getElementsByTagName("tbody")[0];
+        const newRow = tBody.insertRow(-1);
+        let cell1 = newRow.insertCell(0);
         cell1.classList.add("col1");
+        let newParagraph = document.createElement("p");
+        newParagraph.id = `p${table.rows.length - 1}`;
+        cell1.appendChild(newParagraph);
     }
     rowBuilder();
-    
-    // Resets row height for more handwriting space once printed
-    const rows = table.querySelectorAll("tr");
-    rows.forEach(row => {
-        row.style.height = "40px";
-    });
 }
 
 // Handles writing to table
@@ -233,7 +377,7 @@ function writer() {
     
     // Item input handling
     } else if (event.target.id === "itemName") {
-        const table = document.getElementById("listTable");
+        const table = document.getElementById("listTable1");
         const itemInput = document.getElementById("itemName");
         const item = itemInput.value;
         const itemCell = document.getElementById(`p${table.rows.length - 1}`);
@@ -250,7 +394,7 @@ function writer() {
 
 // Exports table data as JSON file
 function exportList() {
-    const table = document.getElementById("listTable");
+    const table = document.getElementById("listTable1");
     const tableData = [];
     const titleCell = document.getElementById("th1");
     const listTitle = titleCell.textContent;
@@ -297,14 +441,10 @@ function importList() {
             const data = JSON.parse(e.target.result);
             
             // Set title
-            const table = document.getElementById("listTable");
+            const table = document.getElementById("tBody1");
             const titleCell = document.getElementById("th1");
             titleCell.textContent = data.title;
-            
-            // Clear existing rows
-            for (let i = table.rows.length - 1; i > 0; i--) {
-                table.deleteRow(i);
-            }
+            clearTable();
             
             // Populate table with imported data
             for (const item of data.items) {
@@ -333,7 +473,7 @@ function importList() {
 
 // Saves table as PNG image
 function saveAsPng() {
-    const table = document.getElementById("listTable");
+    const table = document.getElementById("listTable1");
     const titleCell = document.getElementById("th1");
     const title = titleCell.textContent || "list";
     const lastRow = table.rows.length - 1;
