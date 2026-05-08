@@ -4,7 +4,7 @@ body {
     flex-direction: column;
     align-items: center;
 }
-table {
+.table {
     width: 100%;
     border: 3px black solid;
     padding: 0;
@@ -131,15 +131,14 @@ div.templateBuilder {
 }
 
 @media print {
+
+    html {
+        overflow: hidden;
+    }
     .addButton, .removeButton, #controlBtnContainer, body * {
         visibility: hidden;
     }
-    #checklistTable, #checklistTable * {
+    .table, .table * {
         visibility: visible;
-    }
-    #checklistTable {
-        position: absolute;
-        left: 0;
-        top: 0;
     }
 }
