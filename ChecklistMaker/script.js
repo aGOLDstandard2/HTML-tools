@@ -161,6 +161,191 @@ function formControl() {
     });
 }
 
+// Checks if we need to build a new tables for multi-page prints
+function pageCheck() {
+    const table = document.getElementById("checklistTable1");
+    const titleCell = document.getElementById("th1");
+    const title = titleCell.textContent
+    const firstRow = table.rows[1];
+    const firstCell = firstRow.cells[0];
+    let pageCounter = 0;
+    let pageLength = 0;
+    let  template = false;
+
+    if (firstCell.textContent === "") {
+        pageLength = 21;
+        template = true;
+    } else if (firstCell.textCell !== "") {
+        pageLength = 26;
+    }
+    pageCounter = Math.ceil((table.rows.length -1) / pageLength);
+
+    if (pageCounter > 1) {
+        if (template) {
+            multiPageBuild(pageCounter, pageLength, template);
+        } else {
+            multiPageBuild(pageCounter, pageLength);
+        }
+    }
+}
+
+// Creates new tables for multi-page prints
+function multiPageBuild(pageCounter, pageLength, template) {
+    const mainTable = document.getElementById("checklistTable1");
+    const titleCell = document.getElementById("th1");
+    const title = titleCell.textContent;
+
+    // Builds array of rows and thier data
+    const allRows = mainTable.rows.length;
+    const rowData = [];
+    for (let i = 1; i < allRows; i++) {
+        const row = mainTable.rows[i];
+        const textCell = row.cells[0];
+        const checkCell = row.cells[1];
+        const item = textCell.textContent;
+        const checkboxes = checkCell.querySelectorAll(".checkbox");
+        const checkEnum = checkboxes.length;
+        rowData.push({ item, checkEnum });
+    }
+
+    clearTable();
+    
+    // Starts table building iterations
+    for (let j = 0; j < pageCounter; j++) {
+        
+        // Makes sure the last table is created
+        let tableLength = 0;
+        if (rowData.length >= pageLength) {
+            tableLength = pageLength;
+        } else {
+            tableLength = rowData.length;
+        }
+        if (rowData.length === 0) {
+            return;
+        }
+
+        // Resets title for original table
+        if (j === 0) {
+            titleCell.textContent = `${title} (${j + 1}/${pageCounter})`;
+        } else {
+
+            // Builds table header
+            let newTable = document.createElement('table');
+            newTable.id = `checklistTable${j + 1}`;
+            newTable.className = 'table';
+            const tHead = document.createElement('thead');
+            const tHeadRow = document.createElement('tr');
+            const th = document.createElement('th');
+            let h2 = document.createElement('h2');
+            h2.id = `th${j + 1}`;
+            h2.textContent = `${title} (${j + 1}/${pageCounter})`;
+            let newTBody = document.createElement('tbody');
+            newTBody.id = `tBody${j + 1}`;
+            newTable.appendChild(newTBody);
+            th.appendChild(h2);
+            tHeadRow.appendChild(th);
+            tHead.appendChild(tHeadRow);
+            newTable.insertBefore(tHead, newTBody);
+            const controlButtonDiv = document.getElementById(`controlBtnContainer`);
+            document.body.insertBefore(newTable, controlButtonDiv);
+            tHeadRow.insertCell(1);
+        }
+
+        // Fills out table
+        for (let k = 0; k < tableLength; k++) {
+            const table = document.getElementById(`tBody${j + 1}`);
+            let newRow = table.insertRow(-1);
+            let itemCell = newRow.insertCell(0);
+            itemCell.classList.add("col1");
+            let newParagraph = document.createElement("p");
+            newParagraph.id = `p${table.rows.length}_${j +1}`;
+            newParagraph.textContent = rowData[k].item;
+            itemCell.appendChild(newParagraph);
+            itemCell.style.textAlign = "center";
+            let checkCell = newRow.insertCell(1);
+            checkCell.classList.add("col2");
+            
+            // Add checkboxes
+            if (!rowData[k].checkEnum || rowData[k].checkEnum < 1) {
+                rowData[k].checkEnum = 1;
+            }
+            for (let l = 0; l < rowData[k].checkEnum; l++) {
+                let checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.classList.add("checkbox");
+                checkbox.id = `checkbox${l}`;
+                checkCell.appendChild(checkbox);
+                checkCell.style.textAlign = "center";
+            }
+
+            
+            if (template) {
+                newRow.style.height = "40px";
+                
+            }
+        }
+
+        // Removes newly created table row data from array
+        if (j === 0) {
+            for (let m = 0; m < tableLength; m++) {
+                rowData.shift();
+            }
+        }
+    }
+}
+
+// Tears down multi-page printing layout and returns to default
+function multiPageUndo() {
+    const tables = document.querySelectorAll('table');
+    const tablesEnum = tables.length;
+    const rowData = [];
+    for (let i = 0; i < tablesEnum; i++) {
+
+        // Builds array of rows and thier data
+        const table = document.getElementById(`checklistTable${i + 1}`);
+        if (table.id !== `checklistTable1`) {
+            const allRows = table.rows.length;
+            for (let i = 0; i < allRows - 1; i++) {
+                const row = table.rows[i + 1];
+                const itemCell = row.cells[0];
+                const item = itemCell.textContent;
+                const checkCell = row.cells[1];
+                const checks = checkCell.querySelectorAll(".checkbox");
+                const checkEnum = checks.length;
+                rowData.push({ item, checkEnum });
+            }
+            table.remove();
+        }
+    }
+    
+    // Fills out table
+    const table = document.getElementById(`tBody1`);
+    const titleCell = document.getElementById(`th1`);
+    const title = titleCell.textContent.split(" ", 1);
+    titleCell.innerText = title;
+    for (let j = 0; j < rowData.length; j++) {
+        const newRow = table.insertRow(-1);
+        let itemCell = newRow.insertCell(0);
+        itemCell.classList.add("col1");
+        let newParagraph = document.createElement("p");
+        newParagraph.id = `p${table.length}`;
+        newParagraph.textContent = rowData[j].item;
+        itemCell.appendChild(newParagraph);
+        let checkCell = newRow.insertCell(1);
+        checkCell.classList.add("col2");
+        
+        // Adds checkboxes
+        for (let k = 0; k < rowData[j].checkEnum; k++) {
+            let checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.classList.add("checkbox");
+            checkbox.id = `checkbox${k}`;
+            checkCell.appendChild(checkbox);
+            checkCell.style.textAlign = "center";
+        }
+    }
+}
+
 // Replaces item input field and focuses it when "Edit" button is clicked
 function editItem() {
     const table = document.getElementById("checklistTable1");
@@ -420,6 +605,15 @@ function importChecklist() {
                 editButton.addEventListener("click", editItem);
                 itemCell.appendChild(editButton);
 
+                // Add delete button
+                let deleteButton = document.createElement("input");
+                deleteButton.type = "button";
+                deleteButton.value = "Delete";
+                deleteButton.classList.add("deleteButton");
+                deleteButton.id = `btnDelete${table.rows.length - 1}`;
+                deleteButton.addEventListener("click", deleteItem);
+                itemCell.appendChild(deleteButton);
+
                 // Add checkboxes
                 const checkboxCell = row.insertCell(1);
                 if (!item.checkEnum || item.checkEnum < 1) {
@@ -479,209 +673,4 @@ function saveAsPng() {
     document.querySelectorAll(".addButton").forEach(button => button.style.visibility = "visible");
     document.querySelectorAll(".removeButton").forEach(button => button.style.visibility = "visible");
     rowBuilder();
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Checks if we need to build a new tables for multi-page prints
-function pageCheck() {
-    const table = document.getElementById("checklistTable1");
-    const titleCell = document.getElementById("th1");
-    const title = titleCell.textContent
-    const firstRow = table.rows[1];
-    const firstCell = firstRow.cells[0];
-    let pageCounter = 0;
-    let pageLength = 0;
-    let  template = false;
-
-    if (firstCell.textContent === "") {
-        pageLength = 21;
-        template = true;
-    } else if (firstCell.textCell !== "") {
-        pageLength = 26;
-    }
-    pageCounter = Math.ceil((table.rows.length -1) / pageLength);
-
-    if (pageCounter > 1) {
-        if (template) {
-            multiPageBuild(pageCounter, pageLength, template);
-        } else {
-            multiPageBuild(pageCounter, pageLength);
-        }
-    }
-}
-
-// Creates new tables for multi-page prints
-function multiPageBuild(pageCounter, pageLength, template) {
-    const mainTable = document.getElementById("checklistTable1");
-    const titleCell = document.getElementById("th1");
-    const title = titleCell.textContent;
-
-    // Builds array of rows and thier data
-    const allRows = mainTable.rows.length;
-    const rowData = [];
-    for (let i = 1; i < allRows; i++) {
-        const row = mainTable.rows[i];
-        const textCell = row.cells[0];
-        const checkCell = row.cells[1];
-        const item = textCell.textContent;
-        const checkboxes = checkCell.querySelectorAll(".checkbox");
-        const checkEnum = checkboxes.length;
-        rowData.push({ item, checkEnum });
-    }
-
-    clearTable();
-    
-    // Starts table building iterations
-    for (let j = 0; j < pageCounter; j++) {
-        
-        // Makes sure the last table is created
-        let tableLength = 0;
-        if (rowData.length >= pageLength) {
-            tableLength = pageLength;
-        } else {
-            tableLength = rowData.length;
-        }
-        if (rowData.length === 0) {
-            return;
-        }
-
-        // Resets title for original table
-        if (j === 0) {
-            titleCell.textContent = `${title} (${j + 1}/${pageCounter})`;
-        } else {
-
-            // Builds table header
-            let newTable = document.createElement('table');
-            newTable.id = `checklistTable${j + 1}`;
-            newTable.className = 'table';
-            const tHead = document.createElement('thead');
-            const tHeadRow = document.createElement('tr');
-            const th = document.createElement('th');
-            let h2 = document.createElement('h2');
-            h2.id = `th${j + 1}`;
-            h2.textContent = `${title} (${j + 1}/${pageCounter})`;
-            let newTBody = document.createElement('tbody');
-            newTBody.id = `tBody${j + 1}`;
-            newTable.appendChild(newTBody);
-            th.appendChild(h2);
-            tHeadRow.appendChild(th);
-            tHead.appendChild(tHeadRow);
-            newTable.insertBefore(tHead, newTBody);
-            const controlButtonDiv = document.getElementById(`controlBtnContainer`);
-            document.body.insertBefore(newTable, controlButtonDiv);
-            tHeadRow.insertCell(1);
-        }
-
-        // Fills out table
-        for (let k = 0; k < tableLength; k++) {
-            const table = document.getElementById(`tBody${j + 1}`);
-            let newRow = table.insertRow(-1);
-            let itemCell = newRow.insertCell(0);
-            itemCell.classList.add("col1");
-            let newParagraph = document.createElement("p");
-            newParagraph.id = `p${table.rows.length}_${j +1}`;
-            newParagraph.textContent = rowData[k].item;
-            itemCell.appendChild(newParagraph);
-            itemCell.style.textAlign = "center";
-            let checkCell = newRow.insertCell(1);
-            checkCell.classList.add("col2");
-            
-            // Add checkboxes
-            if (!rowData[k].checkEnum || rowData[k].checkEnum < 1) {
-                rowData[k].checkEnum = 1;
-            }
-            for (let l = 0; l < rowData[k].checkEnum; l++) {
-                let checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                checkbox.classList.add("checkbox");
-                checkbox.id = `checkbox${l}`;
-                checkCell.appendChild(checkbox);
-                checkCell.style.textAlign = "center";
-            }
-
-            
-            if (template) {
-                newRow.style.height = "40px";
-                
-            }
-        }
-
-        // Removes newly created table row data from array
-        if (j === 0) {
-            for (let m = 0; m < tableLength; m++) {
-                rowData.shift();
-            }
-        }
-    }
-}
-
-// Tears down multi-page printing layout and returns to default
-function multiPageUndo() {
-    const tables = document.querySelectorAll('table');
-    const tablesEnum = tables.length;
-    const rowData = [];
-    for (let i = 0; i < tablesEnum; i++) {
-
-        // Builds array of rows and thier data
-        const table = document.getElementById(`checklistTable${i + 1}`);
-        if (table.id !== `checklistTable1`) {
-            const allRows = table.rows.length;
-            for (let i = 0; i < allRows - 1; i++) {
-                const row = table.rows[i + 1];
-                const itemCell = row.cells[0];
-                const item = itemCell.textContent;
-                const checkCell = row.cells[1];
-                const checks = checkCell.querySelectorAll(".checkbox");
-                const checkEnum = checks.length;
-                rowData.push({ item, checkEnum });
-            }
-            table.remove();
-        }
-    }
-    
-    // Fills out table
-    const table = document.getElementById(`tBody1`);
-    const titleCell = document.getElementById(`th1`);
-    const title = titleCell.textContent.split(" ", 1);
-    titleCell.innerText = title;
-    for (let j = 0; j < rowData.length; j++) {
-        const newRow = table.insertRow(-1);
-        let itemCell = newRow.insertCell(0);
-        itemCell.classList.add("col1");
-        let newParagraph = document.createElement("p");
-        newParagraph.id = `p${table.length}`;
-        newParagraph.textContent = rowData[j].item;
-        itemCell.appendChild(newParagraph);
-        let checkCell = newRow.insertCell(1);
-        checkCell.classList.add("col2");
-        
-        // Adds checkboxes
-        for (let k = 0; k < rowData[j].checkEnum; k++) {
-            let checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.classList.add("checkbox");
-            checkbox.id = `checkbox${k}`;
-            checkCell.appendChild(checkbox);
-            checkCell.style.textAlign = "center";
-        }
-    }
 }
