@@ -13,6 +13,7 @@ body {
 
 th {
     border: 1px black solid;
+    width: 75%;
     padding: 0;
     margin: 0;
 }
@@ -46,7 +47,7 @@ td {
 td.col1 {
     text-align: center;
     vertical-align: middle;
-    width: 80%;
+    width: auto;
     margin: 0;
     padding: 0;
 }
@@ -60,6 +61,7 @@ p {
 td.col2 {
     text-align: center;
     vertical-align: middle;
+    width: 20%;
 }
 
 .checkbox {
@@ -132,10 +134,7 @@ div.templateBuilder {
 
 @media print {
 
-    html {
-        overflow: hidden;
-    }
-    .addButton, .removeButton, #controlBtnContainer, body * {
+    .addButton, .removeButton, .editButton, .deleteButton, #controlBtnContainer, body * {
         visibility: hidden;
     }
     .table, .table * {

@@ -29,69 +29,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 ---------------------------------------------------------------------*/
 
-// Builds new row with input field and buttons
-function rowBuilder() {
-    const table = document.getElementById("checklistTable1");
-    const newRow = table.insertRow(-1);
 
-    // Build item cell with input field
-    let cell1 = newRow.insertCell(0);
-    cell1.classList.add("col1");
-    let newParagraph = document.createElement("p");
-    newParagraph.id = `p${table.rows.length - 1}`;
-    cell1.appendChild(newParagraph);
-    let newInput = document.createElement("input");
-    newInput.type = "text";
-    newInput.name = "itemName";
-    newInput.id = "itemName";
-    newInput.placeholder = `Item${table.rows.length - 1}`;
-    cell1.appendChild(newInput);
+/*------------------------------
 
-    // Build edit button
-    let editButton = document.createElement("input");
-    editButton.type = "button";
-    editButton.value = "Edit";
-    editButton.classList.add("editButton");
-    editButton.id = `btnEdit${table.rows.length - 1}`;
-    editButton.addEventListener("click", editItem);
-    cell1.appendChild(editButton);
+          *On Load*
 
-    // Build delete button
-    let deleteButton = document.createElement("input");
-    deleteButton.type = "button";
-    deleteButton.value = "Delete";
-    deleteButton.classList.add("deleteButton");
-    deleteButton.id = `btnDelete${table.rows.length - 1}`;
-    deleteButton.addEventListener("click", deleteItem);
-    cell1.appendChild(deleteButton);
+------------------------------*/
 
-    // Build checkbox cell with single checkbox
-    let cell2 = newRow.insertCell(1);
-    cell2.classList.add("col2");
-    let checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.classList.add("checkbox");
-    checkbox.id = "checkbox0";
-    cell2.appendChild(checkbox);
-    
-    // Add "+" button to checkbox cell
-    let addButton = document.createElement("input");
-    addButton.type = "button";
-    addButton.value = "+";
-    addButton.classList.add("addButton");
-    addButton.addEventListener("click", addBox);
-    addButton.id = `btnAdd${table.rows.length - 1}`;
-    cell2.appendChild(addButton);
-
-    // Add "-" button to checkbox cell
-    let removeButton = document.createElement("input");
-    removeButton.type = "button";
-    removeButton.value = "-";
-    removeButton.classList.add("removeButton");
-    removeButton.addEventListener("click", removeBox);
-    removeButton.id = `btnRemove${table.rows.length - 1}`;
-    cell2.appendChild(removeButton);
-}
 
 // Changes the way the Enter key behaves, and cleans up prints
 function formControl() {
@@ -100,35 +44,23 @@ function formControl() {
     // Cleans up table for printing
     window.addEventListener("beforeprint", function() {
 
-        // Remove last row if it contains the item input field
-        const table = document.getElementById("checklistTable1");
-        const lastRow = table.rows.length - 1;
-        if (table.contains(document.getElementById(`itemName`))) {
-            table.deleteRow(lastRow);
-        }
-
         // Inits multi-page reformatting if needed
         pageCheck();
-
-        // Hide buttons
-        document.querySelectorAll(".addButton").forEach(button => button.style.visibility = "hidden");
-        document.querySelectorAll(".removeButton").forEach(button => button.style.visibility = "hidden");
-        document.querySelectorAll(".editButton").forEach(button => button.style.visibility = "hidden");
-        document.querySelectorAll(".deleteButton").forEach(button => button.style.visibility = "hidden");
     });
 
     // Adds removed row back to table, and shows buttons
-    window.addEventListener("afterprint", function() {
-
-        // Undoes actions of multi-page reformatting
-        multiPageUndo()
-
-        rowBuilder();
-        document.querySelectorAll(".addButton").forEach(button => button.style.visibility = "visible");
-        document.querySelectorAll(".removeButton").forEach(button => button.style.visibility = "visible");
-        document.querySelectorAll(".editButton").forEach(button => button.style.visibility = "visible");
-        document.querySelectorAll(".deleteButton").forEach(button => button.style.visibility = "visible");
-    });
+    const tBoddies = document.querySelectorAll('tbody');
+    const tBodyEnum = tBoddies.length;
+    const checkTitle = document.getElementById('checkTitle');
+    if (tBodyEnum < 2 && !checkTitle.value) {
+        window.addEventListener("afterprint", function() {
+            rowBuilder();
+            document.querySelectorAll(".addButton").forEach(button => button.style.visibility = "visible");
+            document.querySelectorAll(".removeButton").forEach(button => button.style.visibility = "visible");
+            document.querySelectorAll(".editButton").forEach(button => button.style.visibility = "visible");
+            document.querySelectorAll(".deleteButton").forEach(button => button.style.visibility = "visible");
+        });
+    }
 
     // Add event listener for Enter key on all input fields
     const nada = " " || "" || 0 || "0" || null || undefined;
@@ -145,6 +77,7 @@ function formControl() {
             }
 
             // Template Builder forms
+            const table = document.getElementById(`checklistTable1`);
             const numRows = document.getElementById("numRows");
             const checksPerRow = document.getElementById("checkboxesPerRow");
             const templateTitle = document.getElementById("templateTitle");
@@ -155,11 +88,410 @@ function formControl() {
                 templateTitle.focus();
             }
             if (templateTitle.value && checksPerRow.value && numRows.value) {
-                genListSize();
+                genListSize(table, numRows.value, checksPerRow.value, templateTitle.value);
             }
         }
     });
 }
+
+
+/*------------------------------
+
+      *Table Data Handling*
+
+------------------------------*/
+
+
+// Handles writing to table
+function writer() {
+    
+    // Title input handling
+    if (document.activeElement.id === "checkTitle") {
+        const titleInput = event.target;
+        const title = titleInput.value;
+        if (title) {
+            const titleCell = document.getElementById("th1");
+            titleInput.remove();
+            titleCell.textContent = title.trim();
+            document.getElementById("itemName").focus();
+        } else {
+            console.warn(`Can't enter a blank list title!`);
+            titleInput.focus();
+        }
+    
+    // Item input handling
+    } else if (event.target.id === "itemName") {
+        const table = document.getElementById("checklistTable1");
+        const itemInput = event.target;
+        const item = itemInput.value;
+
+        if (item) {
+            const somethingIllChange = event.target;
+            const row = somethingIllChange.closest('tr');
+            const itemCell = row.cells[0];
+            itemInput.remove();
+            itemCell.textContent = item.trim();
+            addEdit(table, itemCell);
+            addDelete(table, itemCell);
+            rowBuilder();
+            document.getElementById("itemName").focus();
+        } else {
+            console.warn(`Can't enter blank line!`);
+            itemInput.focus();
+        }
+    }
+}
+
+// Builds new row with input field and buttons
+function rowBuilder() {
+    const table = document.getElementById("checklistTable1");
+    const newRow = table.insertRow(-1);
+
+    // Build item cell with input field
+    let itemCell = newRow.insertCell(0);
+    itemCell.classList.add("col1");
+    let newParagraph = document.createElement("p");
+    newParagraph.id = `p${table.rows.length - 1}`;
+    itemCell.appendChild(newParagraph);
+    let newInput = document.createElement("input");
+    newInput.type = "text";
+    newInput.name = "itemName";
+    newInput.id = "itemName";
+    newInput.placeholder = `Item${table.rows.length - 1}`;
+    itemCell.appendChild(newInput);
+
+    // Build checkbox cell with single checkbox
+    let checkCell = newRow.insertCell(1);
+    checkCell.classList.add("col2");
+    let checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.classList.add("checkbox");
+    checkbox.id = "checkbox0";
+    checkCell.appendChild(checkbox);
+
+    // Add buttons
+    addCheck(table, checkCell);
+    addRmv(table, checkCell);
+}
+
+// Clears all table rows except header
+function clearTable() {
+
+    // Resets form if clear button was clicked
+    if (document.activeElement.id === "clearBtn") {
+        const titleCell = document.getElementById("th1");
+        titleCell.textContent = "";
+        const titleField = document.createElement("input");
+        titleField.type = "text";
+        titleField.id = "checkTitle";
+        titleField.placeholder = "Checklist Title";
+        titleCell.appendChild(titleField);
+        const table = document.getElementById("checklistTable1");
+        for (let i = table.rows.length - 1; i > 0; i--) {
+            table.deleteRow(i);
+        }
+        rowBuilder();
+        document.getElementById("checkTitle").focus();
+    } else {
+
+        // For genListSize()
+        const table = document.getElementById("checklistTable1");
+        for (let i = table.rows.length - 1; i > 0; i--) {
+            table.deleteRow(i);
+        }
+    }
+}
+
+// Generates blank, printable checklist based on Template Builder form values
+function genListSize(table, numRows, checksPerRow, templateTitle) {
+    const tBody = document.getElementById('tBody1');
+    const titleCell = document.getElementById("th1");
+    titleCell.textContent = templateTitle;
+    const numChecks = document.getElementById("checkboxesPerRow").value;
+    if (checksPerRow < 1) {
+        document.getElementById("checkboxesPerRow").focus();
+        return;
+    }
+    clearTable();
+
+    // Row generation
+    for (let i = 0; i < numRows; i++) {
+        const tBody = table.getElementsByTagName('tbody')[0];
+        const newRow = tBody.insertRow(-1);
+        let itemCell = newRow.insertCell(0);
+        itemCell.classList.add("col1");
+        let newParagraph = document.createElement("p");
+        newParagraph.id = `p${table.rows.length - 1}`;
+        itemCell.appendChild(newParagraph);
+        let checkCell = newRow.insertCell(1);
+        checkCell.classList.add("col2");
+        
+        // Checkbox generation
+        for (let j = 0; j < checksPerRow; j++) {
+            let checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.classList.add("checkbox");
+            checkbox.id = `checkbox${j}`;
+            checkCell.appendChild(checkbox);
+        }
+    }
+}
+
+
+/*------------------------------
+
+        *Import/Export*
+
+------------------------------*/
+
+
+// Exports table data as JSON file
+function exportChecklist() {
+    const table = document.getElementById("checklistTable1");
+    const tableData = [];
+    const titleCell = document.getElementById("th1");
+    const listTitle = titleCell.textContent;
+    const lastRow = table.rows.length - 1;
+    table.deleteRow(lastRow);
+    
+    // Pull item text and enum checkboxes for each row
+    for (let i = 1; i < table.rows.length; i++) {
+        const row = table.rows[i];
+        const itemCell = row.cells[0];
+        const checkboxCell = row.cells[1];
+        const item = itemCell.textContent;
+        const checkboxes = checkboxCell.querySelectorAll(".checkbox");
+        const checkEnum = checkboxes.length;
+        tableData.push({ item, checkEnum });
+    }
+    
+    // Set up JSON and download it
+    const jsonData = JSON.stringify({ title: listTitle, items: tableData });
+    const blob = new Blob([jsonData], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `checklist-${listTitle}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    rowBuilder();   // Add blank row back to table after export
+}
+
+// Imports JSON file and populates table with data
+function importChecklist() {
+    
+    // Read JSON and populate table
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/json";
+
+    // Handle file selection and reading
+    input.onchange = function(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        // Parse JSON and populate table
+        reader.onload = function(e) {
+            const data = JSON.parse(e.target.result);
+            
+            // Set title
+            const table = document.getElementById("tBody1");
+            const titleCell = document.getElementById("th1");
+            titleCell.textContent = data.title;
+            clearTable();
+            
+            // Populate table with imported data
+            for (const item of data.items) {
+
+                // Add new row and item text
+                const row = table.insertRow();
+                const itemCell = row.insertCell(0);
+                itemCell.textContent = item.item;
+                itemCell.style.textAlign = "center";
+
+                // Add checkboxes
+                const checkCell = row.insertCell(1);
+                if (!item.checkEnum || item.checkEnum < 1) {
+                    item.checkEnum = 1;
+                }
+                for (let i = 0; i < item.checkEnum; i++) {
+                    let checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.classList.add("checkbox");
+                    checkbox.id = `checkbox${i}`;
+                    checkCell.appendChild(checkbox);
+                    checkCell.style.textAlign = "center";
+                }
+
+                // Add buttons
+                addEdit(table, itemCell);
+                addDelete(table, itemCell);
+                addCheck(table, checkCell);
+                addRmv(table, checkCell);
+            }
+            rowBuilder();   // Add blank row back to table after import
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+
+// Saves table as PNG image
+function saveAsPng() {
+    const table = document.getElementById("checklistTable1");
+    const titleCell = document.getElementById("th1");
+    const title = titleCell.textContent || "checklist";
+    const lastRow = table.rows.length - 1;
+    table.deleteRow(lastRow);
+    document.querySelectorAll(".editButton").forEach(button => button.style.visibility = "hidden");
+    document.querySelectorAll(".deleteButton").forEach(button => button.style.visibility = "hidden");
+    document.querySelectorAll(".addButton").forEach(button => button.style.visibility = "hidden");
+    document.querySelectorAll(".removeButton").forEach(button => button.style.visibility = "hidden");
+    html2canvas(table).then(canvas => {
+        const link = document.createElement("a");
+        link.download = `checklist-${title}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+    });
+    document.querySelectorAll(".editButton").forEach(button => button.style.visibility = "visible");
+    document.querySelectorAll(".deleteButton").forEach(button => button.style.visibility = "visible");
+    document.querySelectorAll(".addButton").forEach(button => button.style.visibility = "visible");
+    document.querySelectorAll(".removeButton").forEach(button => button.style.visibility = "visible");
+    rowBuilder();
+}
+
+
+/*------------------------------
+
+        *Button funcs*
+
+------------------------------*/
+
+
+// Build an edit button and append to table
+function addEdit(table, itemCell) {
+    let editButton = document.createElement("input");
+    editButton.type = "button";
+    editButton.value = "Edit";
+    editButton.classList.add("editButton");
+    editButton.id = `btnEdit${table.rows.length - 1}`;
+    editButton.addEventListener("click", editItem);
+    itemCell.appendChild(editButton);
+}
+
+// Replaces item input field and focuses it when "Edit" button is clicked
+function editItem() {
+    const table = document.getElementById("checklistTable1");
+    const button = event.target;
+    const row = button.closest('tr');
+    const itemCell = row.cells[0];
+    let itemText = itemCell.textContent;
+    if (row) {
+        itemCell.textContent = "";
+        let editInput = document.createElement("input");
+        editInput.type = "text";
+        editInput.name = "editItem";
+        editInput.id = "editItem";
+        editInput.value = itemText;
+        itemCell.appendChild(editInput);
+        editInput.focus();
+
+        // Adds event listener for Enter key on edit input field
+        editInput.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                const newItem = editInput.value;
+                itemCell.textContent = newItem;
+                addEdit(table, itemCell);
+                addDelete(table, itemCell);
+                document.getElementById("itemName").focus();
+            }
+        });
+    } else {
+        document.getElementById("itemName").focus();
+    }
+}
+
+// Build a delete button and append to table
+function addDelete(table, itemCell) {
+    let deleteButton = document.createElement("input");
+    deleteButton.type = "button";
+    deleteButton.value = "Delete";
+    deleteButton.classList.add("deleteButton");
+    deleteButton.id = `btnDelete${table.rows.length - 1}`;
+    deleteButton.addEventListener("click", deleteItem);
+    itemCell.appendChild(deleteButton);
+}
+
+// Deletes row of clicked "Delete" button
+function deleteItem() {
+    const table = document.getElementById("checklistTable1");
+    const button = event.target;
+    const row = button.closest('tr');
+    if (row) {
+        row.remove();
+    }
+}
+
+// Build a "+" button and append to table
+function addCheck(table, checkCell) {
+    let addButton = document.createElement("input");
+    addButton.type = "button";
+    addButton.value = "+";
+    addButton.classList.add("addButton");
+    addButton.addEventListener("click", addBox);
+    addButton.id = `btnAdd${table.rows.length - 1}`;
+    checkCell.appendChild(addButton);
+}
+
+// Adds checkbox to row of clicked "+" button
+function addBox() {
+    const table = document.getElementById("checklistTable1");
+    const lastRow = table.rows.length - 1;
+    const button = event.target;
+    const row = button.closest('tr');
+    const cell2 = row.cells[1];
+    let checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.classList.add("checkbox");
+    checkbox.id = `checkbox${cell2.querySelectorAll(".checkbox").length}`;
+    cell2.appendChild(checkbox);
+}
+
+// Build a "-" button and append to table
+function addRmv(table, checkCell) {
+    let removeButton = document.createElement("input");
+    removeButton.type = "button";
+    removeButton.value = "-";
+    removeButton.classList.add("removeButton");
+    removeButton.addEventListener("click", removeBox);
+    removeButton.id = `btnRemove${table.rows.length - 1}`;
+    checkCell.appendChild(removeButton);
+}
+
+// Removes last checkbox from row of clicked "-" button
+function removeBox() {
+    const table = document.getElementById("checklistTable1");
+    const lastRow = table.rows.length - 1;
+    const button = event.target;
+    const row = button.closest('tr');
+    const cell2 = row.cells[1];
+    const checkboxes = cell2.querySelectorAll(".checkbox");
+    if (checkboxes.length > 1) {
+        const lastCheckbox = checkboxes[checkboxes.length - 1];
+        cell2.removeChild(lastCheckbox);
+    }
+}
+
+
+/*------------------------------
+
+        *Print Cleanup*
+
+------------------------------*/
+
 
 // Checks if we need to build a new tables for multi-page prints
 function pageCheck() {
@@ -186,6 +518,23 @@ function pageCheck() {
         } else {
             multiPageBuild(pageCounter, pageLength);
         }
+    } else {
+        
+        // Remove last row if it contains the item input field
+        const table = document.getElementById("checklistTable1");
+        const lastRow = table.rows.length - 1;
+        if (table.contains(document.getElementById(`itemName`))) {
+            table.deleteRow(lastRow);
+        }
+
+        const col1 = table.querySelector('th');
+        col1.style.width = '75%';
+        
+        // Hide buttons
+        document.querySelectorAll(".addButton").forEach(button => button.style.visibility = "hidden");
+        document.querySelectorAll(".removeButton").forEach(button => button.style.visibility = "hidden");
+        document.querySelectorAll(".editButton").forEach(button => button.style.visibility = "hidden");
+        document.querySelectorAll(".deleteButton").forEach(button => button.style.visibility = "hidden");
     }
 }
 
@@ -207,7 +556,6 @@ function multiPageBuild(pageCounter, pageLength, template) {
         const checkEnum = checkboxes.length;
         rowData.push({ item, checkEnum });
     }
-
     clearTable();
     
     // Starts table building iterations
@@ -281,7 +629,6 @@ function multiPageBuild(pageCounter, pageLength, template) {
             
             if (template) {
                 newRow.style.height = "40px";
-                
             }
         }
 
@@ -292,10 +639,19 @@ function multiPageBuild(pageCounter, pageLength, template) {
             }
         }
     }
+    if (template) {
+        window.addEventListener("afterpint", function() {
+            multiPageUndo(template);
+        });
+    } else {
+        window.addEventListener("afterprint", function(){
+            multiPageUndo();
+        });
+    }
 }
 
 // Tears down multi-page printing layout and returns to default
-function multiPageUndo() {
+function multiPageUndo(template) {
     const tables = document.querySelectorAll('table');
     const tablesEnum = tables.length;
     const rowData = [];
@@ -303,6 +659,21 @@ function multiPageUndo() {
 
         // Builds array of rows and thier data
         const table = document.getElementById(`checklistTable${i + 1}`);
+
+        if (table.id === "checklistTable1") {
+            // Add buttons back to original table
+            for (let j = 0; j < table.rows.length -1; j++) {
+                const row = table.rows[j + 1];
+                const itemCell = row.cells[0];
+                const checkCell = row.cells[1];
+                addEdit(table, itemCell);
+                addDelete(table, itemCell);
+                addCheck(table, checkCell);
+                addRmv(table, checkCell);
+            }
+            table.deleteRow(table.rows.length - 1);
+        }
+
         if (table.id !== `checklistTable1`) {
             const allRows = table.rows.length;
             for (let i = 0; i < allRows - 1; i++) {
@@ -319,358 +690,44 @@ function multiPageUndo() {
     }
     
     // Fills out table
-    const table = document.getElementById(`tBody1`);
+    const table = document.getElementById(`checklistTable1`);
+    const tBody = table.querySelector('tbody');
     const titleCell = document.getElementById(`th1`);
     const title = titleCell.textContent.split(" ", 1);
     titleCell.innerText = title;
-    for (let j = 0; j < rowData.length; j++) {
-        const newRow = table.insertRow(-1);
+    for (let k = 0; k < rowData.length; k++) {
+        let newRow = table.insertRow(-1);
         let itemCell = newRow.insertCell(0);
         itemCell.classList.add("col1");
         let newParagraph = document.createElement("p");
-        newParagraph.id = `p${table.length}`;
-        newParagraph.textContent = rowData[j].item;
+        newParagraph.id = `p${table.length + k + 1}`;
+        newParagraph.textContent = rowData[k].item;
         itemCell.appendChild(newParagraph);
         let checkCell = newRow.insertCell(1);
         checkCell.classList.add("col2");
         
         // Adds checkboxes
-        for (let k = 0; k < rowData[j].checkEnum; k++) {
+        for (let l = 0; l < rowData[k].checkEnum; l++) {
             let checkbox = document.createElement("input");
             checkbox.type = "checkbox";
             checkbox.classList.add("checkbox");
-            checkbox.id = `checkbox${k}`;
+            checkbox.id = `checkbox${l}`;
             checkCell.appendChild(checkbox);
             checkCell.style.textAlign = "center";
         }
+        // Add buttons
+        addEdit(table, itemCell);
+        addDelete(table, itemCell);
+        addCheck(table, checkCell);
+        addRmv(table, checkCell);
     }
-}
 
-// Replaces item input field and focuses it when "Edit" button is clicked
-function editItem() {
-    const table = document.getElementById("checklistTable1");
-    const lastRow = table.rows.length - 1;
-    const buttonId = event.target.id;
-    const rowIndex = parseInt(buttonId.replace("btnEdit", ""));
-    const row = table.rows[rowIndex];
-    const cell1 = row.cells[0];
-    let itemText = cell1.textContent;
-    if (rowIndex !== lastRow) {
-        cell1.textContent = "";
-        let editInput = document.createElement("input");
-        editInput.type = "text";
-        editInput.name = "editItem";
-        editInput.id = "editItem";
-        editInput.value = itemText;
-        cell1.appendChild(editInput);
-        editInput.focus();
-
-        // Adds event listener for Enter key on edit input field
-        editInput.addEventListener("keydown", function(event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                const newItem = editInput.value;
-                cell1.textContent = newItem;
-                const editButton = document.createElement("input");
-                editButton.type = "button";
-                editButton.value = "Edit";
-                editButton.classList.add("editButton");
-                editButton.id = `btnEdit${rowIndex}`;
-                editButton.addEventListener("click", editItem);
-                cell1.appendChild(editButton);
-                const deleteButton = document.createElement("input");
-                deleteButton.type = "button";
-                deleteButton.value = "Delete";
-                deleteButton.classList.add("deleteButton");
-                deleteButton.id = `btnDelete${rowIndex}`;
-                deleteButton.addEventListener("click", deleteItem);
-                cell1.appendChild(deleteButton);
-                table.deleteRow(lastRow);
-                rowBuilder();
-                document.getElementById("itemName").focus();
-            }
-        });
+    if (template) {
+        const rows = table.querySelectorAll('tr');
+        if (rows && !table.rows[0]) {
+            newRow.style.height = '40px';
+        }
     } else {
-        document.getElementById("itemName").focus();
-    }
-}
-
-// Deletes row of clicked "Delete" button
-function deleteItem() {
-    const table = document.getElementById("checklistTable1");
-    const buttonId = event.target.id;
-    const rowIndex = parseInt(buttonId.replace("btnDelete", ""));
-    const lastRow = table.rows.length - 1;
-    if (rowIndex !== lastRow) {
-        table.deleteRow(rowIndex);
-    }
-}
-
-// Adds checkbox to row of clicked "+" button
-function addBox() {
-    const table = document.getElementById("checklistTable1");
-    const buttonId = event.target.id;
-    const rowIndex = parseInt(buttonId.replace("btnAdd", ""));
-    const row = table.rows[rowIndex];
-    const cell2 = row.cells[1];
-    let checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.classList.add("checkbox");
-    checkbox.id = `checkbox${cell2.querySelectorAll(".checkbox").length}`;
-    cell2.appendChild(checkbox);
-}
-
-// Removes last checkbox from row of clicked "-" button
-function removeBox() {
-    const table = document.getElementById("checklistTable1");
-    const buttonId = event.target.id;
-    const rowIndex = parseInt(buttonId.replace("btnRemove", ""));
-    const row = table.rows[rowIndex];
-    const cell2 = row.cells[1];
-    const checkboxes = cell2.querySelectorAll(".checkbox");
-    if (checkboxes.length > 1) {
-        const lastCheckbox = checkboxes[checkboxes.length - 1];
-        cell2.removeChild(lastCheckbox);
-    }
-}
-
-// Clears all table rows except header
-function clearTable() {
-
-    // Resets form if clear button was clicked
-    if (document.activeElement.id === "clearBtn") {
-        const titleCell = document.getElementById("th1");
-        titleCell.textContent = "";
-        const titleField = document.createElement("input");
-        titleField.type = "text";
-        titleField.id = "checkTitle";
-        titleField.placeholder = "Checklist Title";
-        titleCell.appendChild(titleField);
-        const table = document.getElementById("checklistTable1");
-        for (let i = table.rows.length - 1; i > 0; i--) {
-            table.deleteRow(i);
-        }
         rowBuilder();
-        document.getElementById("checkTitle").focus();
-    } else {
-
-        // For genListSize()
-        const table = document.getElementById("checklistTable1");
-        for (let i = table.rows.length - 1; i > 0; i--) {
-            table.deleteRow(i);
-        }
     }
-}
-
-// Generates blank, printable checklist based on Template Builder form values
-function genListSize() {
-    const table = document.getElementById("checklistTable1");
-    const tBody = document.getElementById('tBody1');
-    const numRows = document.getElementById("numRows").value;
-    const title = document.getElementById("templateTitle").value;
-    const titleCell = document.getElementById("th1");
-    titleCell.textContent = title;
-    const numChecks = document.getElementById("checkboxesPerRow").value;
-    if (numChecks < 1) {
-        document.getElementById("checkboxesPerRow").focus();
-        return;
-    }
-    clearTable();
-
-    // Row generation
-    for (let i = 0; i < numRows; i++) {
-        const tBody = table.getElementsByTagName('tbody')[0];
-        const newRow = tBody.insertRow(-1);
-        let cell1 = newRow.insertCell(0);
-        cell1.classList.add("col1");
-        let newParagraph = document.createElement("p");
-        newParagraph.id = `p${table.rows.length - 1}`;
-        cell1.appendChild(newParagraph);
-        let cell2 = newRow.insertCell(1);
-        cell2.classList.add("col2");
-        
-        // Checkbox generation
-        for (let j = 0; j < numChecks; j++) {
-            let checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.classList.add("checkbox");
-            checkbox.id = `checkbox${j}`;
-            cell2.appendChild(checkbox);
-        }
-    }
-    rowBuilder();
-}
-
-// Handles writing to table
-function writer() {
-    
-    // Title input handling
-    if (document.activeElement.id === "checkTitle") {
-        const titleInput = document.getElementById("checkTitle");
-        const title = titleInput.value;
-        const titleCell = document.getElementById("th1");
-        titleInput.remove();
-        titleCell.textContent = title;
-        document.getElementById("itemName").focus();
-    
-    // Item input handling
-    } else if (event.target.id === "itemName") {
-        const table = document.getElementById("checklistTable1");
-        const itemInput = document.getElementById("itemName");
-        const item = itemInput.value;
-        const itemCell = document.getElementById(`p${table.rows.length - 1}`);
-        const editButton = document.getElementById(`btnEdit${table.rows.length - 1}`);
-        const deleteButton = document.getElementById(`btnDelete${table.rows.length - 1}`);
-        itemInput.remove();
-        itemCell.textContent = item;
-        itemCell.appendChild(editButton);
-        itemCell.appendChild(deleteButton);
-        rowBuilder();
-        document.getElementById("itemName").focus();
-    }
-}
-
-// Exports table data as JSON file
-function exportChecklist() {
-    const table = document.getElementById("checklistTable1");
-    const tableData = [];
-    const titleCell = document.getElementById("th1");
-    const listTitle = titleCell.textContent;
-    const lastRow = table.rows.length - 1;
-    table.deleteRow(lastRow);
-    
-    // Pull item text and enum checkboxes for each row
-    for (let i = 1; i < table.rows.length; i++) {
-        const row = table.rows[i];
-        const itemCell = row.cells[0];
-        const checkboxCell = row.cells[1];
-        const item = itemCell.textContent;
-        const checkboxes = checkboxCell.querySelectorAll(".checkbox");
-        const checkEnum = checkboxes.length;
-        tableData.push({ item, checkEnum });
-    }
-    
-    // Set up JSON and download it
-    const jsonData = JSON.stringify({ title: listTitle, items: tableData });
-    const blob = new Blob([jsonData], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `checklist-${listTitle}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    rowBuilder();   // Add blank row back to table after export
-}
-
-// Imports JSON file and populates table with data
-function importChecklist() {
-    
-    // Read JSON and populate table
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "application/json";
-
-    // Handle file selection and reading
-    input.onchange = function(event) {
-        const file = event.target.files[0];
-        const reader = new FileReader();
-
-        // Parse JSON and populate table
-        reader.onload = function(e) {
-            const data = JSON.parse(e.target.result);
-            
-            // Set title
-            const table = document.getElementById("tBody1");
-            const titleCell = document.getElementById("th1");
-            titleCell.textContent = data.title;
-            clearTable();
-            
-            // Populate table with imported data
-            for (const item of data.items) {
-
-                // Add new row and item text
-                const row = table.insertRow();
-                const itemCell = row.insertCell(0);
-                itemCell.textContent = item.item;
-                itemCell.style.textAlign = "center";
-
-                // Add edit button
-                let editButton = document.createElement("input");
-                editButton.type = "button";
-                editButton.value = "Edit";
-                editButton.classList.add("editButton");
-                editButton.id = `btnEdit${table.rows.length - 1}`;
-                editButton.addEventListener("click", editItem);
-                itemCell.appendChild(editButton);
-
-                // Add delete button
-                let deleteButton = document.createElement("input");
-                deleteButton.type = "button";
-                deleteButton.value = "Delete";
-                deleteButton.classList.add("deleteButton");
-                deleteButton.id = `btnDelete${table.rows.length - 1}`;
-                deleteButton.addEventListener("click", deleteItem);
-                itemCell.appendChild(deleteButton);
-
-                // Add checkboxes
-                const checkboxCell = row.insertCell(1);
-                if (!item.checkEnum || item.checkEnum < 1) {
-                    item.checkEnum = 1;
-                }
-                for (let i = 0; i < item.checkEnum; i++) {
-                    let checkbox = document.createElement("input");
-                    checkbox.type = "checkbox";
-                    checkbox.classList.add("checkbox");
-                    checkbox.id = `checkbox${i}`;
-                    checkboxCell.appendChild(checkbox);
-                    checkboxCell.style.textAlign = "center";
-                }
-
-                // Add "+" button to checkbox cell
-                let addButton = document.createElement("input");
-                addButton.type = "button";
-                addButton.value = "+";
-                addButton.classList.add("addButton");
-                addButton.addEventListener("click", addBox);
-                addButton.id = `btnAdd${table.rows.length - 1}`;
-                checkboxCell.appendChild(addButton);
-
-                // Add "-" button to checkbox cell
-                let removeButton = document.createElement("input");
-                removeButton.type = "button";
-                removeButton.value = "-";
-                removeButton.classList.add("removeButton");
-                removeButton.addEventListener("click", removeBox);
-                removeButton.id = `btnRemove${table.rows.length - 1}`;
-                checkboxCell.appendChild(removeButton);
-            }
-            rowBuilder();   // Add blank row back to table after import
-        };
-        reader.readAsText(file);
-    };
-    input.click();
-}
-
-// Saves table as PNG image
-function saveAsPng() {
-    const table = document.getElementById("checklistTable1");
-    const titleCell = document.getElementById("th1");
-    const title = titleCell.textContent || "checklist";
-    const lastRow = table.rows.length - 1;
-    table.deleteRow(lastRow);
-    document.querySelectorAll(".editButton").forEach(button => button.style.visibility = "hidden");
-    document.querySelectorAll(".addButton").forEach(button => button.style.visibility = "hidden");
-    document.querySelectorAll(".removeButton").forEach(button => button.style.visibility = "hidden");
-    html2canvas(table).then(canvas => {
-        const link = document.createElement("a");
-        link.download = `checklist-${title}.png`;
-        link.href = canvas.toDataURL();
-        link.click();
-    });
-    document.querySelectorAll(".editButton").forEach(button => button.style.visibility = "visible");
-    document.querySelectorAll(".addButton").forEach(button => button.style.visibility = "visible");
-    document.querySelectorAll(".removeButton").forEach(button => button.style.visibility = "visible");
-    rowBuilder();
 }
