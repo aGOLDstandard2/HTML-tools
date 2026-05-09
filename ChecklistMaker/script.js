@@ -59,6 +59,7 @@ function formControl() {
             document.querySelectorAll(".removeButton").forEach(button => button.style.visibility = "visible");
             document.querySelectorAll(".editButton").forEach(button => button.style.visibility = "visible");
             document.querySelectorAll(".deleteButton").forEach(button => button.style.visibility = "visible");
+            document.getElementById('itemName').focus();
         });
     }
 
@@ -526,9 +527,6 @@ function pageCheck() {
         if (table.contains(document.getElementById(`itemName`))) {
             table.deleteRow(lastRow);
         }
-
-        const col1 = table.querySelector('th');
-        col1.style.width = '75%';
         
         // Hide buttons
         document.querySelectorAll(".addButton").forEach(button => button.style.visibility = "hidden");
@@ -600,7 +598,7 @@ function multiPageBuild(pageCounter, pageLength, template) {
         }
 
         // Fills out table
-        for (let k = 0; k < tableLength; k++) {
+        for (let k = 0; k < tableLength - 1; k++) {
             const table = document.getElementById(`tBody${j + 1}`);
             let newRow = table.insertRow(-1);
             let itemCell = newRow.insertCell(0);
