@@ -51,15 +51,18 @@ function formControl() {
     // Adds removed row back to table, and shows buttons
     const tBoddies = document.querySelectorAll('tbody');
     const tBodyEnum = tBoddies.length;
-    const checkTitle = document.getElementById('checkTitle');
-    if (tBodyEnum < 2 && !checkTitle.value) {
+    if (tBodyEnum < 2) {
         window.addEventListener("afterprint", function() {
-            rowBuilder();
-            document.querySelectorAll(".addButton").forEach(button => button.style.visibility = "visible");
-            document.querySelectorAll(".removeButton").forEach(button => button.style.visibility = "visible");
-            document.querySelectorAll(".editButton").forEach(button => button.style.visibility = "visible");
-            document.querySelectorAll(".deleteButton").forEach(button => button.style.visibility = "visible");
-            document.getElementById('itemName').focus();
+            const table = document.getElementById('checklistTable1');
+            const topItem = table.rows[1].cells[0];
+            if (topItem.textContent !== "") {
+                rowBuilder();
+                document.querySelectorAll(".addButton").forEach(button => button.style.visibility = "visible");
+                document.querySelectorAll(".removeButton").forEach(button => button.style.visibility = "visible");
+                document.querySelectorAll(".editButton").forEach(button => button.style.visibility = "visible");
+                document.querySelectorAll(".deleteButton").forEach(button => button.style.visibility = "visible");
+                document.getElementById('itemName').focus();
+            }
         });
     }
 
