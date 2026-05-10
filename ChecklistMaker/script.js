@@ -49,11 +49,11 @@ function formControl() {
     });
 
     // Adds removed row back to table, and shows buttons
-    const tBoddies = document.querySelectorAll('tbody');
-    const tBodyEnum = tBoddies.length;
-    if (tBodyEnum < 2) {
-        window.addEventListener("afterprint", function() {
-            const table = document.getElementById('checklistTable1');
+    window.addEventListener("afterprint", function() {
+        const tBoddies = document.querySelectorAll('tbody');
+        const tBodyEnum = tBoddies.length;
+        const table = document.getElementById('checklistTable1');
+        if (tBodyEnum < 2) {
             const topItem = table.rows[1].cells[0];
             if (topItem.textContent !== "") {
                 rowBuilder();
@@ -63,8 +63,18 @@ function formControl() {
                 document.querySelectorAll(".deleteButton").forEach(button => button.style.visibility = "visible");
                 document.getElementById('itemName').focus();
             }
-        });
-    }
+        } else {
+            const topItem = table.rows[1].cells[0];
+            let template = false;
+            console.log(topItem.textContent === "");
+            if (!topItem.textContent) {
+                template = true;
+                multiPageUndo(template);
+            } else {
+                multiPageUndo(template);
+            }
+        }
+    });
 
     // Add event listener for Enter key on all input fields
     const nada = " " || "" || 0 || "0" || null || undefined;
@@ -640,15 +650,6 @@ function multiPageBuild(pageCounter, pageLength, template) {
             }
         }
     }
-    if (template) {
-        window.addEventListener("afterpint", function() {
-            multiPageUndo(template);
-        });
-    } else {
-        window.addEventListener("afterprint", function(){
-            multiPageUndo();
-        });
-    }
 }
 
 // Tears down multi-page printing layout and returns to default
@@ -661,7 +662,7 @@ function multiPageUndo(template) {
         // Builds array of rows and thier data
         const table = document.getElementById(`checklistTable${i + 1}`);
 
-        if (table.id === "checklistTable1") {
+        if (table.id === "checklistTable1" && !template) {
             // Add buttons back to original table
             for (let j = 0; j < table.rows.length -1; j++) {
                 const row = table.rows[j + 1];
@@ -716,11 +717,14 @@ function multiPageUndo(template) {
             checkCell.appendChild(checkbox);
             checkCell.style.textAlign = "center";
         }
-        // Add buttons
-        addEdit(table, itemCell);
-        addDelete(table, itemCell);
-        addCheck(table, checkCell);
-        addRmv(table, checkCell);
+
+        if (!template) {
+            // Add buttons
+            addEdit(table, itemCell);
+            addDelete(table, itemCell);
+            addCheck(table, checkCell);
+            addRmv(table, checkCell);
+        }
     }
 
     if (template) {
