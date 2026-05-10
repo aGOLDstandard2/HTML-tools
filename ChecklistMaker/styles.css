@@ -4,8 +4,10 @@ body {
     flex-direction: column;
     align-items: center;
 }
+
 .table {
-    width: 100%;
+    width: 99%;
+    height: auto;
     border: 3px black solid;
     padding: 0;
     margin: 0;
@@ -36,11 +38,14 @@ th {
     font: 18px Arial, sans-serif;
 }
 
-td {
-    position: relative;
+tbody tr {
     padding: 0;
     margin: 0;
-    height: 30px;
+    height: 32px;
+}
+
+td {
+    position: relative;
     border: 1px black solid;
 }
 
@@ -50,12 +55,7 @@ td.col1 {
     width: auto;
     margin: 0;
     padding: 0;
-}
-
-p {
-    margin: 0;
-    padding: 0;
-    font-size: 95%;
+    border: 1px black solid;
 }
 
 td.col2 {
@@ -71,6 +71,14 @@ td.col2 {
     height: 20px;
     margin: 2px;
     padding: 2px;
+}
+
+div.notTable {
+    display: block;
+    align-items: center;
+    text-align: center;
+    width: 10%;
+    height: 65px
 }
 
 #controlBtnContainer {
@@ -123,10 +131,11 @@ td.col2 {
 }
 
 div.templateBuilder {
+    position: relative;
     margin: 20px;
     margin-top: 30px;
     padding: 10px;
-    width: 20%;
+    width: 15%;
     border: 5px black solid;
     border-radius: 8%;
     text-align: center;
@@ -134,10 +143,31 @@ div.templateBuilder {
 
 @media print {
 
-    .addButton, .removeButton, .editButton, .deleteButton, #controlBtnContainer, body * {
-        visibility: hidden;
+    @page {
+    size: letter;
+    margin: 0.4in;
+    margin-top: 0.3in;
+    margin-bottom: 0.3in;
     }
-    .table, .table * {
-        visibility: visible;
+
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: auto;
+        min-height: 0;
+    }
+
+    table {
+        border-collapse: collapse;
+    }
+
+    table, tbody, tr, td, th {
+        break-inside: avoid;
+        margin: 0;
+        padding: 0;
+    }
+
+    #controlBtnContainer, #controlBtnContainer *, .notTable, .notTable *, .templateBuilder, .templateBuilder * {
+        display: none;
     }
 }

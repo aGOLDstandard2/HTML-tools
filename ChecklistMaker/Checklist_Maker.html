@@ -22,9 +22,7 @@
         <tbody id="tBody1">
             <tr>
                 <td id="td1" class="col1">
-                    <p id="p1">
                         <input type="text" name="itemName" id="itemName" placeholder="Item 1...">
-                    </p>
                 </td>
                 <td class="col2">
                     <input type="checkbox" class="checkbox" id="checkbox0">
@@ -39,22 +37,24 @@
         <input type="button" id="savePng" value="Save list as PNG" onclick="saveAsPng()">
         <input type="button" id="clearBtn" value="Clear Checklist" onclick="clearTable()">
     </div><br>
-        <input type="button" id="importBtn" value="Import Checklist" onclick="importChecklist()"><br>
+    <div class="notTable">
+        <input type="button" id="importBtn" value="Import Checklist" onclick="importChecklist()"><br><br>
         <input type="button" id="exportBtn" value="Export Checklist" onclick="exportChecklist()">
-
-    <!-- Template Builder -->
-    <div class="templateBuilder">
-        <h3>Template Builder</h3><br>
-        Number of rows (Full page = 21 rows): <br>
-        <input type="number" id="numRows" min="1">
-        <br><br>
-        Checkboxes per row (you can add more later; up to 15 per row.): <br>
-        <input type="number" id="checkboxesPerRow" min="1" max="15">
-        <br><br>
-        Checklist title: <br>
-        <input type="text" id="templateTitle">
-        <br><br>
-        Hit enter to generate checklist!
     </div>
+
+        <!-- Template Builder -->
+        <div class="templateBuilder">
+            <h3>Template Builder</h3><br>
+            Number of rows (Full page = 20 rows): <br>
+            <input type="number" id="numRows" min="1">
+            <br><br>
+            Checkboxes per row (you can add more later; up to 15 per row.): <br>
+            <input type="number" id="checkboxesPerRow" min="1" max="15">
+            <br><br>
+            Checklist title: <br>
+            <input type="text" id="templateTitle">
+            <br><br>
+            Hit enter to generate checklist!
+        </div>
 </body>
 </html>

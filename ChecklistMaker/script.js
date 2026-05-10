@@ -37,7 +37,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 ------------------------------*/
 
 
-// Changes the way the Enter key behaves, and cleans up prints
+// Changes the way the Enter key behaves / does some print clean up
 function formControl() {
     document.getElementById("checkTitle").focus(); // Focus first input field on page load
 
@@ -66,7 +66,6 @@ function formControl() {
         } else {
             const topItem = table.rows[1].cells[0];
             let template = false;
-            console.log(topItem.textContent === "");
             if (!topItem.textContent) {
                 template = true;
                 multiPageUndo(template);
@@ -140,8 +139,8 @@ function writer() {
         const item = itemInput.value;
 
         if (item) {
-            const somethingIllChange = event.target;
-            const row = somethingIllChange.closest('tr');
+            const inputRow = event.target;
+            const row = inputRow.closest('tr');
             const itemCell = row.cells[0];
             itemInput.remove();
             itemCell.textContent = item.trim();
@@ -164,9 +163,6 @@ function rowBuilder() {
     // Build item cell with input field
     let itemCell = newRow.insertCell(0);
     itemCell.classList.add("col1");
-    let newParagraph = document.createElement("p");
-    newParagraph.id = `p${table.rows.length - 1}`;
-    itemCell.appendChild(newParagraph);
     let newInput = document.createElement("input");
     newInput.type = "text";
     newInput.name = "itemName";
@@ -234,9 +230,6 @@ function genListSize(table, numRows, checksPerRow, templateTitle) {
         const newRow = tBody.insertRow(-1);
         let itemCell = newRow.insertCell(0);
         itemCell.classList.add("col1");
-        let newParagraph = document.createElement("p");
-        newParagraph.id = `p${table.rows.length - 1}`;
-        itemCell.appendChild(newParagraph);
         let checkCell = newRow.insertCell(1);
         checkCell.classList.add("col2");
         
@@ -519,12 +512,14 @@ function pageCheck() {
     let  template = false;
 
     if (firstCell.textContent === "") {
-        pageLength = 21;
+        console.log(true);
+        pageLength = 20;
         template = true;
+        pageCounter = Math.ceil((table.rows.length - 1) / pageLength);
     } else if (firstCell.textCell !== "") {
         pageLength = 26;
+        pageCounter = Math.ceil((table.rows.length - 2) / pageLength);
     }
-    pageCounter = Math.ceil((table.rows.length -1) / pageLength);
 
     if (pageCounter > 1) {
         if (template) {
@@ -546,6 +541,13 @@ function pageCheck() {
         document.querySelectorAll(".removeButton").forEach(button => button.style.visibility = "hidden");
         document.querySelectorAll(".editButton").forEach(button => button.style.visibility = "hidden");
         document.querySelectorAll(".deleteButton").forEach(button => button.style.visibility = "hidden");
+
+        if (template) {
+            for (let i = 1; i < table.rows.length; i++) {
+                const col1 = table.rows[i].cells[0];
+                col1.style.height = '40px';
+            }
+        }
     }
 }
 
@@ -572,15 +574,15 @@ function multiPageBuild(pageCounter, pageLength, template) {
     // Starts table building iterations
     for (let j = 0; j < pageCounter; j++) {
         
+        if (rowData.length === 0) {
+            return;
+        }
         // Makes sure the last table is created
         let tableLength = 0;
         if (rowData.length >= pageLength) {
             tableLength = pageLength;
         } else {
             tableLength = rowData.length;
-        }
-        if (rowData.length === 0) {
-            return;
         }
 
         // Resets title for original table
@@ -611,15 +613,12 @@ function multiPageBuild(pageCounter, pageLength, template) {
         }
 
         // Fills out table
-        for (let k = 0; k < tableLength - 1; k++) {
+        for (let k = 0; k < tableLength; k++) {
             const table = document.getElementById(`tBody${j + 1}`);
             let newRow = table.insertRow(-1);
             let itemCell = newRow.insertCell(0);
             itemCell.classList.add("col1");
-            let newParagraph = document.createElement("p");
-            newParagraph.id = `p${table.rows.length}_${j +1}`;
-            newParagraph.textContent = rowData[k].item;
-            itemCell.appendChild(newParagraph);
+            itemCell.textContent = rowData[k].item;
             itemCell.style.textAlign = "center";
             let checkCell = newRow.insertCell(1);
             checkCell.classList.add("col2");
@@ -649,6 +648,11 @@ function multiPageBuild(pageCounter, pageLength, template) {
                 rowData.shift();
             }
         }
+        
+        if (tableLength === rowData.length) {
+            const table = document.getElementById(`checklistTable${j + 1}`);
+            table.deleteRow(-1);
+        } 
     }
 }
 
@@ -673,7 +677,6 @@ function multiPageUndo(template) {
                 addCheck(table, checkCell);
                 addRmv(table, checkCell);
             }
-            table.deleteRow(table.rows.length - 1);
         }
 
         if (table.id !== `checklistTable1`) {
@@ -701,10 +704,7 @@ function multiPageUndo(template) {
         let newRow = table.insertRow(-1);
         let itemCell = newRow.insertCell(0);
         itemCell.classList.add("col1");
-        let newParagraph = document.createElement("p");
-        newParagraph.id = `p${table.length + k + 1}`;
-        newParagraph.textContent = rowData[k].item;
-        itemCell.appendChild(newParagraph);
+        itemCell.textContent = rowData[k].item;
         let checkCell = newRow.insertCell(1);
         checkCell.classList.add("col2");
         
@@ -727,12 +727,8 @@ function multiPageUndo(template) {
         }
     }
 
-    if (template) {
-        const rows = table.querySelectorAll('tr');
-        if (rows && !table.rows[0]) {
-            newRow.style.height = '40px';
-        }
-    } else {
+    if (!template) {
         rowBuilder();
+        document.getElementById('itemName').focus();
     }
 }
