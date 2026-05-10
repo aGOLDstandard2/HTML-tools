@@ -516,7 +516,7 @@ function pageCheck() {
 
     if (firstCell.textContent === "") {
         console.log(true);
-        pageLength = 20;
+        pageLength = 21;
         template = true;
         pageCounter = Math.ceil((table.rows.length - 1) / pageLength);
     } else if (firstCell.textCell !== "") {
@@ -656,6 +656,15 @@ function multiPageBuild(pageCounter, pageLength, template) {
             const table = document.getElementById(`checklistTable${j + 1}`);
             table.deleteRow(-1);
         } 
+    }
+    
+    // Better spacing for template tables
+    if (template) {
+        const tables = document.querySelectorAll('table');
+        const tableEnum = tables.length;
+        for (let m = 0; m < tableEnum; m++) {
+            tables[m].style.marginBottom = "5px";
+        }
     }
 }
 
