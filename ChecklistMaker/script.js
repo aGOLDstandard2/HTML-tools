@@ -435,10 +435,13 @@ function addDelete(table, itemCell) {
 // Deletes row of clicked "Delete" button
 function deleteItem() {
     const table = document.getElementById("checklistTable1");
+
     const button = event.target;
     const row = button.closest('tr');
     if (row) {
         row.remove();
+        const itemName = document.getElementById('itemName');
+        itemName.placeholder = `Item${table.rows.length - 1}`;
     }
 }
 
